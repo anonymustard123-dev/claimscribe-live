@@ -1,6 +1,7 @@
 streamlit
 google-generativeai
 streamlit-mic-recorder
-reportlab
 pandas
+reportlab
+pypdf
 Pillow
