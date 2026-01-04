@@ -1,6 +1,5 @@
 import streamlit as st
 import google.generativeai as genai
-from streamlit_mic_recorder import mic_recorder
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import colors
@@ -20,7 +19,7 @@ st.set_page_config(
     page_title="ClaimScribe", 
     page_icon="🛡️", 
     layout="wide",
-    initial_sidebar_state="collapsed" # Auto-collapse sidebar on mobile for cleaner look
+    initial_sidebar_state="collapsed"
 )
 
 # 🔑 API KEY (Secure Retrieval)
@@ -31,91 +30,78 @@ except FileNotFoundError:
     st.stop()
 
 # ==========================================
-# 2. PWA & PRO STYLING (FIXED)
+# 2. PWA & "NUCLEAR" STYLING
 # ==========================================
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    /* --- GLOBAL RESET & FONTS --- */
+    /* --- FORCE CLEAN LOOK --- */
     .stApp { 
-        background-color: #f8fafc; 
         font-family: 'Inter', sans-serif;
-        color: #0f172a;
     }
     
-    /* --- HIDE STREAMLIT BRANDING (The "Pet Project" Fix) --- */
-    [data-testid="stHeader"] { display: none; }
-    footer { display: none; }
-    #MainMenu { visibility: hidden; }
+    /* --- HIDE ALL STREAMLIT BRANDING (The "Pet Project" Remover) --- */
     
-    /* --- TYPOGRAPHY --- */
-    h1, h2, h3 { color: #0f172a !important; font-weight: 700 !important; letter-spacing: -0.025em; }
-    p, div, label, li, span { color: #334155; }
+    /* 1. Hide the top colored decoration bar */
+    header[data-testid="stHeader"] {
+        display: none !important;
+    }
+    
+    /* 2. Hide the "Hosted with Streamlit" Footer */
+    footer {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0px !important;
+    }
+    
+    /* 3. Hide the Hamburger Menu & Github Icon */
+    #MainMenu {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    .stDeployButton {
+        display: none !important;
+    }
+    
+    /* 4. Hide the "Stop Recording" container border to make it look native */
+    [data-testid="stAudioInput"] {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 10px;
+        background: white;
+    }
 
     /* --- CARD STYLING --- */
     .input-card { 
         background-color: #ffffff; 
         padding: 1.5rem; 
         border-radius: 12px; 
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         border: 1px solid #e2e8f0;
         margin-bottom: 20px;
     }
 
-    /* --- BUTTON STYLING (Force Blue/White) --- */
+    /* --- BUTTON STYLING --- */
     .stButton button {
         background-color: #2563eb !important;
-        color: #ffffff !important;
+        color: white !important;
         border: none !important;
         border-radius: 8px !important;
-        padding: 0.6rem 1rem !important;
         font-weight: 600 !important;
-        width: 100%;
-        min-height: 45px;
         box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2) !important;
     }
-    .stButton button:hover {
-        background-color: #1d4ed8 !important;
-    }
-    /* Fix for the "Stop" button in mic recorder */
-    button[kind="secondary"] {
-        background-color: #ffffff !important;
-        color: #dc2626 !important;
-        border: 1px solid #dc2626 !important;
-    }
 
-    /* --- INPUTS & DROPDOWNS (Force Light Mode) --- */
-    /* This fixes the black box / unreadable text issue */
-    div[data-baseweb="select"] > div {
-        background-color: #ffffff !important;
-        color: #0f172a !important;
-        border-color: #cbd5e1 !important;
-    }
-    div[data-baseweb="select"] span {
-        color: #0f172a !important;
-    }
-    input {
-        background-color: #ffffff !important;
-        color: #0f172a !important;
-    }
-
-    /* --- SIDEBAR CLEANUP --- */
-    section[data-testid="stSidebar"] { 
-        background-color: #ffffff; 
-        border-right: 1px solid #f1f5f9; 
-    }
-
-    /* --- MOBILE PADDING FIXES --- */
+    /* --- MOBILE PADDING --- */
     .block-container {
-        padding-top: 2rem !important;
-        padding-bottom: 5rem !important;
+        padding-top: 1rem !important;
+        padding-bottom: 3rem !important;
     }
 </style>
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#f8fafc">
+<meta name="theme-color" content="#ffffff">
 """, unsafe_allow_html=True)
 
 # Load Truth Data
@@ -163,12 +149,6 @@ def analyze_multimodal_batch(audio_list, visual_list):
     2. USE UPPERCASE HEADERS on their own lines.
     3. PLAIN TEXT ONLY.
     
-    REQUIRED SECTIONS:
-    GENERAL OVERVIEW
-    ORIGIN AND CAUSE
-    RESULTING DAMAGES
-    RESTORATION RECOMMENDATIONS
-    
     OUTPUT STRUCTURE:
     ---NARRATIVE START---
     GENERAL OVERVIEW
@@ -185,7 +165,7 @@ def analyze_multimodal_batch(audio_list, visual_list):
     ---NARRATIVE END---
     
     ---SCOPE START---
-    (Selector) | (Description) | (Qty)
+    Selector | Description | Qty
     ---SCOPE END---
     """
     
@@ -204,34 +184,22 @@ def analyze_multimodal_batch(audio_list, visual_list):
         return None
 
 def extract_scope_items(raw_text):
-    """
-    Robust parser to find scope items even if AI formatting is imperfect.
-    """
     items = []
     try:
-        # Find the Scope block
-        if "---SCOPE START---" in raw_text and "---SCOPE END---" in raw_text:
-            scope_block = raw_text.split("---SCOPE START---")[1].split("---SCOPE END---")[0]
-        else:
+        if "---SCOPE START---" not in raw_text:
             return []
-
-        # Iterate lines and look for pipe separators
+        scope_block = raw_text.split("---SCOPE START---")[1].split("---SCOPE END---")[0]
         for line in scope_block.split('\n'):
             line = line.strip()
-            # Regex to find lines with at least 2 pipes: "Code | Desc | Qty"
-            if len(re.findall(r'\|', line)) >= 2:
+            if line.startswith('|'): line = line[1:]
+            if line.endswith('|'): line = line[:-1]
+            if "|" in line:
                 parts = [p.strip() for p in line.split('|')]
-                
-                # Filter out header rows or separator rows (e.g. "---|---|---")
                 if len(parts) >= 3:
-                    is_header = "Selector" in parts[0] or "Description" in parts[1]
-                    is_separator = "---" in parts[0]
-                    
-                    if not is_header and not is_separator:
-                        items.append({"code": parts[0], "desc": parts[1], "qty": parts[2]})
+                    if "---" in parts[0] or "Selector" in parts[0]: continue
+                    items.append({"code": parts[0], "desc": parts[1], "qty": parts[2]})
     except Exception as e:
         print(f"Scope Parse Error: {e}")
-        
     return items
 
 def audit_scope(current_scope_list):
@@ -250,13 +218,10 @@ def generate_pdf(narrative, scope_data):
     story.append(Paragraph(f"{target_carrier} Field Report", styles['Title']))
     story.append(Paragraph(f"Loss: {loss_type} | Date: {datetime.datetime.now().strftime('%Y-%m-%d')}", styles['Normal']))
     story.append(Spacer(1, 24))
-    
     formatted_narrative = narrative.replace("\n", "<br/>")
-    
     story.append(Paragraph("<b>Risk Narrative</b>", styles['Heading2']))
     story.append(Paragraph(formatted_narrative, styles['Normal']))
     story.append(Spacer(1, 24))
-    
     if scope_data:
         story.append(Paragraph("<b>Preliminary Scope</b>", styles['Heading2']))
         table_data = [["Selector", "Description", "Qty"]] 
@@ -269,7 +234,6 @@ def generate_pdf(narrative, scope_data):
     buffer.seek(0)
     return buffer
 
-# Re-using other simple functions from before
 def analyze_statement_batch(audio_list, mime_type="audio/wav"):
     genai.configure(api_key=api_key)
     prompt = f"Role: SIU Expert. Analyze audio for fraud/coverage issues. Output: Risk Level, Red Flags, Timeline."
@@ -310,14 +274,13 @@ def process_photos(uploaded_files):
             zip_file.writestr(name, original_file.read())
     return zip_buffer.getvalue()
 
-
 # ==========================================
 # 4. MAIN LAYOUT
 # ==========================================
 
 with st.sidebar:
     st.title("ClaimScribe")
-    st.caption("AI Field Assistant v7.8")
+    st.caption("AI Field Assistant v7.9")
     
     st.subheader("1. Client Profile")
     carrier_options = ["State Farm", "Allstate", "Liberty Mutual", "Chubb", "USAA", "Other"]
@@ -349,41 +312,44 @@ with tab_scribe:
         st.markdown("#### 1. Capture Field Data")
         
         st.write(" **A. Audio Notes**")
-        audio_scribe = mic_recorder(start_prompt="🔴 Record Clip", stop_prompt="⏹️ Stop & Add", key="scribe_rec", use_container_width=True)
-        if audio_scribe:
-            st.session_state.scribe_audio_buffer.append(audio_scribe['bytes'])
+        # NATIVE AUDIO INPUT (Clean Look)
+        audio_scribe = st.audio_input("Record Note", label_visibility="collapsed")
         
         st.write(" **B. Visual Evidence**")
         uploaded_visuals = st.file_uploader("Upload Photos/Videos", type=["jpg", "png", "jpeg", "mp4", "mov"], accept_multiple_files=True, key="scribe_visuals")
         if uploaded_visuals:
             st.session_state.scribe_visual_buffer = uploaded_visuals
         
-        aud_count = len(st.session_state.scribe_audio_buffer)
+        # Audio handling for native input
+        has_audio = audio_scribe is not None
         vis_count = len(st.session_state.scribe_visual_buffer)
         
-        if aud_count > 0 or vis_count > 0:
-            st.info(f"**Ready:** {aud_count} Audio Clips | {vis_count} Visual Files")
+        if has_audio or vis_count > 0:
+            st.info(f"**Ready:** {'Audio Set' if has_audio else 'No Audio'} | {vis_count} Visual Files")
             
             if st.button("🚀 Generate Report", type="primary"):
                 with st.spinner("Synthesizing..."):
-                    raw_text = analyze_multimodal_batch(st.session_state.scribe_audio_buffer, st.session_state.scribe_visual_buffer)
+                    # Wrap audio in list for processing
+                    audio_list = [audio_scribe.getvalue()] if audio_scribe else []
+                    
+                    raw_text = analyze_multimodal_batch(audio_list, st.session_state.scribe_visual_buffer)
                     if raw_text:
                         try:
-                            narrative = raw_text.split("---NARRATIVE START---")[1].split("---NARRATIVE END---")[0].strip()
-                            # USE NEW PARSER
+                            if "---NARRATIVE START---" in raw_text:
+                                narrative = raw_text.split("---NARRATIVE START---")[1].split("---NARRATIVE END---")[0].strip()
+                            else:
+                                narrative = raw_text 
+                            
                             scope_items = extract_scope_items(raw_text)
                             
                             st.session_state.generated_report = narrative
                             st.session_state.scope_items = scope_items
                             st.session_state.history.append({"time": datetime.datetime.now().strftime("%H:%M"),"carrier": target_carrier,"narrative": narrative})
-                            st.session_state.scribe_audio_buffer = []
-                            st.session_state.scribe_visual_buffer = []
                             st.rerun()
                         except Exception as e:
                             st.error(f"Parsing Error: {e}")
             
-            if st.button("🗑️ Clear All"):
-                st.session_state.scribe_audio_buffer = []
+            if st.button("🗑️ Clear All", type="secondary"):
                 st.session_state.scribe_visual_buffer = []
                 st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
@@ -413,7 +379,7 @@ with tab_scribe:
                 pdf = generate_pdf(edited_narrative, final_scope_items)
                 st.download_button("📄 PDF", data=pdf, file_name="Report.pdf", mime="application/pdf")
 
-# (Other tabs follow similar pattern, kept brief for length)
+# (Other tabs are standard)
 with tab_contents:
     col1, col2 = st.columns(2)
     with col1:
@@ -434,7 +400,7 @@ with tab_photos:
         st.download_button("Download ZIP", st.session_state.renamed_zip, "photos.zip")
 
 with tab_statement:
-    # Simplified layout
-    audio = mic_recorder(start_prompt="Rec", stop_prompt="Stop", key="stmt")
+    # UPDATED TO NATIVE AUDIO INPUT
+    audio = st.audio_input("Record Statement", key="stmt")
     if audio and st.button("Analyze"):
-        st.write(analyze_statement_batch([audio['bytes']]))
+        st.write(analyze_statement_batch([audio.getvalue()]))
