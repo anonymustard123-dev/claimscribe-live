@@ -30,143 +30,117 @@ except FileNotFoundError:
     st.stop()
 
 # ==========================================
-# 2. "IOS NATIVE" STYLING (V7.14)
+# 2. PWA & EMOJI-SAFE STYLING (V7.15)
 # ==========================================
 st.markdown("""
 <style>
-    /* --- RESET & SYSTEM FONTS --- */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-    
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    /* --- ROOT & RESET --- */
     :root {
-        --ios-bg: #F2F2F7;         /* Apple System Grey 6 */
-        --ios-card: #FFFFFF;       /* Apple Content White */
-        --ios-blue: #007AFF;       /* Apple System Blue */
-        --ios-text: #000000;       /* Apple Label Color */
-        --ios-subtext: #3C3C4399;  /* Apple Secondary Label */
-        --ios-border: #C6C6C8;     /* Apple Separator */
+        --primary: #2563eb;
+        --bg-color: #ffffff;
+        --card-bg: #ffffff;
+        --text-color: #1e293b;
+        --border-color: #e2e8f0;
     }
-
+    
+    /* --- FONT STACK (Crucial for Emojis) --- */
+    /* We prioritize Emoji fonts to prevent them from turning monochrome */
     .stApp {
-        background-color: var(--ios-bg) !important;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-        color: var(--ios-text) !important;
+        background-color: #f8fafc !important;
+        color: #1e293b !important;
+        font-family: "Inter", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif !important;
     }
 
-    /* --- IOS "GROUPED INSET" CARDS --- */
-    /* This makes every section look like an iPhone Settings group */
-    .input-card {
-        background-color: var(--ios-card) !important;
-        border-radius: 10px !important;
-        padding: 16px !important;
-        margin-bottom: 24px !important;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important; /* Extremely subtle */
+    /* --- TYPOGRAPHY --- */
+    h1, h2, h3 { color: #0f172a !important; font-weight: 700 !important; letter-spacing: -0.025em; }
+    p, label, div, span { color: #334155 !important; }
+    .tool-desc { font-size: 0.9rem; color: #64748b !important; margin-bottom: 1rem; }
+
+    /* --- APP HEADER (Gradient Bar) --- */
+    .stApp > header { display: none !important; }
+    .custom-header {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        padding: 1.5rem 1rem;
+        margin: -4rem -4rem 1.5rem -4rem;
+        color: white;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        text-align: center;
     }
-    
-    /* --- HEADERS --- */
-    h1, h2, h3 {
-        color: var(--ios-text) !important;
-        font-weight: 700 !important;
-        letter-spacing: -0.5px !important;
+    .custom-header h1 { color: white !important; margin: 0; font-size: 1.5rem; }
+    .custom-header p { color: rgba(255,255,255,0.8) !important; margin: 0; font-size: 0.85rem; }
+
+    /* --- CARDS (White floating boxes) --- */
+    .input-card { 
+        background-color: #ffffff;
+        padding: 1.5rem; 
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid white;
+        margin-bottom: 20px;
     }
-    
-    /* --- EXPANDER (THE JOB SETUP) --- */
-    /* Styled to look like an Apple "List Item" */
+
+    /* --- JOB SETUP EXPANDER --- */
     .streamlit-expanderHeader {
-        background-color: var(--ios-card) !important;
+        background-color: #eff6ff !important;
+        color: #1e40af !important;
+        border: 1px solid #dbeafe !important;
         border-radius: 10px !important;
-        color: var(--ios-text) !important;
-        font-weight: 600 !important;
-        border: none !important;
     }
     .streamlit-expanderContent {
-        background-color: var(--ios-card) !important;
-        border-top: 1px solid var(--ios-border) !important;
-        border-bottom-left-radius: 10px !important;
-        border-bottom-right-radius: 10px !important;
-        color: var(--ios-text) !important;
+        background-color: white !important;
+        border: 1px solid #e2e8f0;
+        border-top: none;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
     }
 
-    /* --- INPUTS & DROPDOWNS --- */
-    /* Minimalist, clean, touch-friendly */
-    div[data-baseweb="select"] > div, 
-    input[type="text"], 
-    textarea {
-        background-color: #F2F2F7 !important; /* Light grey fill */
-        border: none !important;
-        border-radius: 8px !important;
-        color: var(--ios-text) !important;
-        font-size: 16px !important; /* Prevents zooming on iPhone */
-        padding: 10px !important;
+    /* --- INPUTS & RECORDER --- */
+    div[data-baseweb="select"] > div, input[type="text"], textarea {
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #0f172a !important;
+        border-radius: 10px !important;
     }
     
-    /* --- TABS --- */
-    /* Looks like a Segmented Control */
-    .stTabs [data-baseweb="tab-list"] {
-        background-color: transparent;
-        padding: 0px 0px 10px 0px;
-        gap: 15px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        height: 40px;
-        white-space: pre-wrap;
-        background-color: transparent !important;
-        border-radius: 20px !important;
-        color: var(--ios-subtext) !important;
-        font-weight: 600 !important;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: var(--ios-card) !important;
-        color: var(--ios-blue) !important;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08) !important;
-    }
-
-    /* --- NATIVE AUDIO INPUT --- */
     [data-testid="stAudioInput"] {
-        background-color: var(--ios-card) !important;
-        border: none !important;
-        border-radius: 12px !important;
-        padding: 12px !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+        background-color: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        padding: 12px;
+        border-radius: 14px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
 
     /* --- BUTTONS --- */
-    /* Primary Action */
     div.stButton > button {
-        background-color: var(--ios-blue) !important;
+        background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%) !important;
         color: white !important;
-        border: none !important;
-        border-radius: 12px !important;
-        font-size: 17px !important;
+        border: 1px solid #1d4ed8 !important;
+        border-radius: 10px !important;
         font-weight: 600 !important;
-        height: 50px !important; /* Big touch target */
-        width: 100% !important;
+        height: 3.2rem !important;
+        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.25);
     }
-    div.stButton > button:active {
-        opacity: 0.7;
-    }
-    
-    /* Secondary Action (Clear) - Looks like "Destructive" or "Tonal" */
     div.stButton > button[kind="secondary"] {
-        background-color: #E5F1FF !important; /* Light Blue */
-        color: var(--ios-blue) !important;
+        background: white !important;
+        color: #64748b !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
 
-    /* --- HIDE JANKY ELEMENTS --- */
+    /* --- HIDE DEFAULT ELEMENTS --- */
     header { visibility: hidden !important; }
     footer { display: none !important; }
     #MainMenu { display: none !important; }
     .stDeployButton { display: none !important; }
     
-    /* Mobile Padding */
-    .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 5rem !important;
-    }
-    
 </style>
 
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default"> <meta name="theme-color" content="#F2F2F7"> """, unsafe_allow_html=True)
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#2563eb"> 
+""", unsafe_allow_html=True)
 
 # Load Truth Data
 @st.cache_data
@@ -321,12 +295,16 @@ def process_photos(uploaded_files, carrier):
 # 4. MAIN LAYOUT
 # ==========================================
 
-# --- HEADER ---
-st.markdown("<h2 style='text-align: center; margin-bottom: 5px;'>ClaimScribe</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #8E8E93; font-size: 14px;'>AI Field Assistant</p>", unsafe_allow_html=True)
+# --- CUSTOM HEADER ---
+st.markdown("""
+    <div class="custom-header">
+        <h1>🛡️ ClaimScribe</h1>
+        <p>AI Field Assistant v7.15</p>
+    </div>
+""", unsafe_allow_html=True)
 
 # --- JOB SETUP (Main Page) ---
-with st.expander("📋 Job Setup", expanded=False):
+with st.expander("📋 **Job Configuration**", expanded=True):
     col_a, col_b = st.columns(2)
     with col_a:
         carrier_options = ["State Farm", "Allstate", "Liberty Mutual", "Chubb", "USAA", "Other"]
@@ -337,30 +315,29 @@ with st.expander("📋 Job Setup", expanded=False):
     
     custom_guidelines = st.text_area("Custom Guidelines (Optional)", placeholder="e.g. Strict passive voice...", height=68)
 
-st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-
 # --- TABS ---
 tab_scribe, tab_contents, tab_statement, tab_photos, tab_policy = st.tabs([
-    "Scribe", "Contents", "Statement", "Photos", "Policy"
+    "🎙️ Scribe", "📦 Contents", "🕵️ Statement", "📸 Photos", "🧞 Policy"
 ])
 
 # --- TAB 1: SCRIBE ---
 with tab_scribe:
-    st.markdown('<p class="tool-desc" style="text-align:center;">Record notes & photos to generate F9 reports.</p>', unsafe_allow_html=True)
+    st.markdown('<p class="tool-desc">Record notes & upload photos to generate Xactimate reports.</p>', unsafe_allow_html=True)
     
-    # 1. Capture
+    # 1. Capture Card
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
-    st.markdown("##### 1. Capture Field Data")
+    st.markdown("##### 🎙️ Capture Field Data") # Emoji added here
     audio_scribe = st.audio_input("Record Field Note", label_visibility="collapsed")
     uploaded_visuals = st.file_uploader("Upload Photos/Videos", type=["jpg", "png", "jpeg", "mp4", "mov"], accept_multiple_files=True, key="scribe_visuals")
     if uploaded_visuals: st.session_state.scribe_visual_buffer = uploaded_visuals
-    st.markdown('</div>', unsafe_allow_html=True)
     
     # Logic
     has_audio = audio_scribe is not None
     vis_count = len(st.session_state.scribe_visual_buffer)
     
     if has_audio or vis_count > 0:
+        st.info(f"**Ready:** {'Audio Set' if has_audio else 'No Audio'} | {vis_count} Files")
+        
         if st.button("🚀 Generate Report", type="primary"):
             with st.spinner("Synthesizing..."):
                 audio_list = [audio_scribe.getvalue()] if audio_scribe else []
@@ -373,14 +350,15 @@ with tab_scribe:
                     st.session_state.scope_items = scope
                     st.rerun()
         
-        if st.button("Clear All", type="secondary"):
+        if st.button("🗑️ Clear All", type="secondary"):
             st.session_state.scribe_visual_buffer = []
             st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    # Results
+    # Results Card
     if st.session_state.generated_report:
         st.markdown('<div class="input-card">', unsafe_allow_html=True)
-        st.markdown("##### 2. Export")
+        st.markdown("##### 📤 Export") # Emoji added here
         edited_narrative = st.text_area("Narrative", value=st.session_state.generated_report, height=300)
         st.caption("Tap to copy:")
         st.code(edited_narrative, language="text")
@@ -401,10 +379,10 @@ with tab_scribe:
 
 # --- TAB 2: CONTENTS ---
 with tab_contents:
-    st.markdown('<div class="input-card">', unsafe_allow_html=True)
     st.markdown('<p class="tool-desc">Upload room photos to list property items.</p>', unsafe_allow_html=True)
+    st.markdown('<div class="input-card">', unsafe_allow_html=True)
     img = st.file_uploader("Room Photos", accept_multiple_files=True, key="content_up")
-    if img and st.button("List Items"):
+    if img and st.button("📦 List Items"):
         res = generate_inventory(img)
         st.session_state.contents_data = [{"Item": l.split('|')[0], "Qty": l.split('|')[1]} for l in res.split('\n') if '|' in l]
     if st.session_state.contents_data:
@@ -413,19 +391,19 @@ with tab_contents:
 
 # --- TAB 3: STATEMENT ---
 with tab_statement:
+    st.markdown('<p class="tool-desc">Analyze recorded interviews for risks.</p>', unsafe_allow_html=True)
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
-    st.markdown('<p class="tool-desc">Analyze interviews for fraud indicators.</p>', unsafe_allow_html=True)
     stmt_audio = st.audio_input("Record Interview", key="stmt_rec")
-    if stmt_audio and st.button("Analyze Statement"):
+    if stmt_audio and st.button("🕵️ Analyze Statement"):
         st.write(analyze_statement_batch([stmt_audio.getvalue()]))
     st.markdown('</div>', unsafe_allow_html=True)
 
 # --- TAB 4: PHOTOS ---
 with tab_photos:
+    st.markdown('<p class="tool-desc">Batch rename site photos using AI.</p>', unsafe_allow_html=True)
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
-    st.markdown('<p class="tool-desc">Batch rename site photos automatically.</p>', unsafe_allow_html=True)
     p = st.file_uploader("Photos to Rename", accept_multiple_files=True, key="photo_up")
-    if p and st.button("Rename Batch"):
+    if p and st.button("📸 Rename Batch"):
         st.session_state.renamed_zip = process_photos(p, target_carrier)
         st.success("Done!")
     if st.session_state.renamed_zip:
@@ -434,7 +412,7 @@ with tab_photos:
 
 # --- TAB 5: POLICY ---
 with tab_policy:
+    st.markdown('<p class="tool-desc">Upload a PDF policy to ask coverage questions.</p>', unsafe_allow_html=True)
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
-    st.markdown('<p class="tool-desc">Upload policy PDF for coverage answers.</p>', unsafe_allow_html=True)
     st.info("Upload policy PDF (Feature simplified for PWA)")
     st.markdown('</div>', unsafe_allow_html=True)
