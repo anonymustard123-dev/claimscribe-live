@@ -30,92 +30,125 @@ except FileNotFoundError:
     st.stop()
 
 # ==========================================
-# 2. PROFESSIONAL UI STYLING (V7.13)
+# 2. "IOS NATIVE" STYLING (V7.14)
 # ==========================================
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-    /* --- ROOT & RESET --- */
+    /* --- RESET & SYSTEM FONTS --- */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    
     :root {
-        --primary: #2563eb;
-        --bg-color: #ffffff;
-        --card-bg: #ffffff;
-        --text-color: #1e293b;
-        --border-color: #e2e8f0;
+        --ios-bg: #F2F2F7;         /* Apple System Grey 6 */
+        --ios-card: #FFFFFF;       /* Apple Content White */
+        --ios-blue: #007AFF;       /* Apple System Blue */
+        --ios-text: #000000;       /* Apple Label Color */
+        --ios-subtext: #3C3C4399;  /* Apple Secondary Label */
+        --ios-border: #C6C6C8;     /* Apple Separator */
+    }
+
+    .stApp {
+        background-color: var(--ios-bg) !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+        color: var(--ios-text) !important;
+    }
+
+    /* --- IOS "GROUPED INSET" CARDS --- */
+    /* This makes every section look like an iPhone Settings group */
+    .input-card {
+        background-color: var(--ios-card) !important;
+        border-radius: 10px !important;
+        padding: 16px !important;
+        margin-bottom: 24px !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important; /* Extremely subtle */
     }
     
-    .stApp {
-        background-color: #f8fafc !important; /* Very subtle light grey background for depth */
-        color: #1e293b !important;
-        font-family: 'Inter', sans-serif;
+    /* --- HEADERS --- */
+    h1, h2, h3 {
+        color: var(--ios-text) !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.5px !important;
     }
-
-    /* --- TYPOGRAPHY --- */
-    h1, h2, h3 { color: #0f172a !important; font-weight: 700 !important; letter-spacing: -0.025em; }
-    p, label, div, span { color: #334155 !important; }
-    .tool-desc { font-size: 0.9rem; color: #64748b !important; margin-bottom: 1rem; }
-
-    /* --- FIX THE BLACK EXPANDER (Job Setup) --- */
-    /* This makes the 'Job Setup' box look like a clean white card */
+    
+    /* --- EXPANDER (THE JOB SETUP) --- */
+    /* Styled to look like an Apple "List Item" */
     .streamlit-expanderHeader {
-        background-color: #ffffff !important;
-        color: #0f172a !important;
-        border: 1px solid #e2e8f0 !important;
-        border-radius: 8px !important;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        background-color: var(--ios-card) !important;
+        border-radius: 10px !important;
+        color: var(--ios-text) !important;
+        font-weight: 600 !important;
+        border: none !important;
     }
     .streamlit-expanderContent {
-        background-color: #ffffff !important;
-        border-left: 1px solid #e2e8f0;
-        border-right: 1px solid #e2e8f0;
-        border-bottom: 1px solid #e2e8f0;
-        border-bottom-left-radius: 8px;
-        border-bottom-right-radius: 8px;
-        color: #334155 !important;
+        background-color: var(--ios-card) !important;
+        border-top: 1px solid var(--ios-border) !important;
+        border-bottom-left-radius: 10px !important;
+        border-bottom-right-radius: 10px !important;
+        color: var(--ios-text) !important;
     }
 
-    /* --- INPUT FIELDS (No More Black Boxes) --- */
-    /* Targets dropdowns and text inputs */
+    /* --- INPUTS & DROPDOWNS --- */
+    /* Minimalist, clean, touch-friendly */
     div[data-baseweb="select"] > div, 
     input[type="text"], 
     textarea {
-        background-color: #ffffff !important;
-        border: 1px solid #cbd5e1 !important;
-        color: #0f172a !important;
-        border-radius: 6px !important;
+        background-color: #F2F2F7 !important; /* Light grey fill */
+        border: none !important;
+        border-radius: 8px !important;
+        color: var(--ios-text) !important;
+        font-size: 16px !important; /* Prevents zooming on iPhone */
+        padding: 10px !important;
     }
     
-    /* --- NATIVE AUDIO RECORDER (Clean Look) --- */
-    [data-testid="stAudioInput"] {
-        background-color: #ffffff !important;
-        border: 1px solid #cbd5e1 !important;
-        padding: 12px;
-        border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    /* --- TABS --- */
+    /* Looks like a Segmented Control */
+    .stTabs [data-baseweb="tab-list"] {
+        background-color: transparent;
+        padding: 0px 0px 10px 0px;
+        gap: 15px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 40px;
+        white-space: pre-wrap;
+        background-color: transparent !important;
+        border-radius: 20px !important;
+        color: var(--ios-subtext) !important;
+        font-weight: 600 !important;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: var(--ios-card) !important;
+        color: var(--ios-blue) !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08) !important;
     }
 
-    /* --- BUTTONS (Professional Gradient) --- */
+    /* --- NATIVE AUDIO INPUT --- */
+    [data-testid="stAudioInput"] {
+        background-color: var(--ios-card) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 12px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+    }
+
+    /* --- BUTTONS --- */
+    /* Primary Action */
     div.stButton > button {
-        background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%) !important;
+        background-color: var(--ios-blue) !important;
         color: white !important;
-        border: 1px solid #1d4ed8 !important;
-        border-radius: 8px !important;
-        font-weight: 500 !important;
-        padding: 0.5rem 1rem !important;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        transition: all 0.2s ease;
+        border: none !important;
+        border-radius: 12px !important;
+        font-size: 17px !important;
+        font-weight: 600 !important;
+        height: 50px !important; /* Big touch target */
+        width: 100% !important;
     }
     div.stButton > button:active {
-        transform: translateY(1px);
-        box-shadow: none;
+        opacity: 0.7;
     }
     
-    /* Secondary Action Button (Clear All) */
+    /* Secondary Action (Clear) - Looks like "Destructive" or "Tonal" */
     div.stButton > button[kind="secondary"] {
-        background: #ffffff !important;
-        color: #64748b !important;
-        border: 1px solid #cbd5e1 !important;
+        background-color: #E5F1FF !important; /* Light Blue */
+        color: var(--ios-blue) !important;
     }
 
     /* --- HIDE JANKY ELEMENTS --- */
@@ -124,12 +157,16 @@ st.markdown("""
     #MainMenu { display: none !important; }
     .stDeployButton { display: none !important; }
     
+    /* Mobile Padding */
+    .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 5rem !important;
+    }
+    
 </style>
 
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#ffffff">
-""", unsafe_allow_html=True)
+<meta name="apple-mobile-web-app-status-bar-style" content="default"> <meta name="theme-color" content="#F2F2F7"> """, unsafe_allow_html=True)
 
 # Load Truth Data
 @st.cache_data
@@ -171,12 +208,6 @@ def analyze_multimodal_batch(audio_list, visual_list, carrier, loss_type, guidel
     1. NO MARKDOWN (No bold, italics).
     2. UPPERCASE HEADERS.
     3. PLAIN TEXT.
-    
-    SECTIONS:
-    GENERAL OVERVIEW
-    ORIGIN AND CAUSE
-    RESULTING DAMAGES
-    RESTORATION RECOMMENDATIONS
     
     OUTPUT STRUCTURE:
     ---NARRATIVE START---
@@ -291,11 +322,11 @@ def process_photos(uploaded_files, carrier):
 # ==========================================
 
 # --- HEADER ---
-st.title("ClaimScribe")
-st.caption("AI Field Assistant v7.13")
+st.markdown("<h2 style='text-align: center; margin-bottom: 5px;'>ClaimScribe</h2>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #8E8E93; font-size: 14px;'>AI Field Assistant</p>", unsafe_allow_html=True)
 
 # --- JOB SETUP (Main Page) ---
-with st.expander("📋 **Job Setup & Carrier**", expanded=True):
+with st.expander("📋 Job Setup", expanded=False):
     col_a, col_b = st.columns(2)
     with col_a:
         carrier_options = ["State Farm", "Allstate", "Liberty Mutual", "Chubb", "USAA", "Other"]
@@ -306,30 +337,30 @@ with st.expander("📋 **Job Setup & Carrier**", expanded=True):
     
     custom_guidelines = st.text_area("Custom Guidelines (Optional)", placeholder="e.g. Strict passive voice...", height=68)
 
-st.markdown("---")
+st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
 # --- TABS ---
 tab_scribe, tab_contents, tab_statement, tab_photos, tab_policy = st.tabs([
-    "🎙️ Scribe", "📦 Contents", "🕵️ Statement", "📸 Photos", "🧞 Policy"
+    "Scribe", "Contents", "Statement", "Photos", "Policy"
 ])
 
 # --- TAB 1: SCRIBE ---
 with tab_scribe:
-    st.markdown('<p class="tool-desc">Record audio notes and upload photos to generate professional Xactimate F9 Notes and preliminary scopes.</p>', unsafe_allow_html=True)
+    st.markdown('<p class="tool-desc" style="text-align:center;">Record notes & photos to generate F9 reports.</p>', unsafe_allow_html=True)
     
     # 1. Capture
+    st.markdown('<div class="input-card">', unsafe_allow_html=True)
     st.markdown("##### 1. Capture Field Data")
     audio_scribe = st.audio_input("Record Field Note", label_visibility="collapsed")
     uploaded_visuals = st.file_uploader("Upload Photos/Videos", type=["jpg", "png", "jpeg", "mp4", "mov"], accept_multiple_files=True, key="scribe_visuals")
     if uploaded_visuals: st.session_state.scribe_visual_buffer = uploaded_visuals
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # Logic
     has_audio = audio_scribe is not None
     vis_count = len(st.session_state.scribe_visual_buffer)
     
     if has_audio or vis_count > 0:
-        st.info(f"**Ready:** {'Audio Set' if has_audio else 'No Audio'} | {vis_count} Files")
-        
         if st.button("🚀 Generate Report", type="primary"):
             with st.spinner("Synthesizing..."):
                 audio_list = [audio_scribe.getvalue()] if audio_scribe else []
@@ -342,13 +373,13 @@ with tab_scribe:
                     st.session_state.scope_items = scope
                     st.rerun()
         
-        if st.button("🗑️ Clear All", type="secondary"):
+        if st.button("Clear All", type="secondary"):
             st.session_state.scribe_visual_buffer = []
             st.rerun()
 
     # Results
     if st.session_state.generated_report:
-        st.markdown("---")
+        st.markdown('<div class="input-card">', unsafe_allow_html=True)
         st.markdown("##### 2. Export")
         edited_narrative = st.text_area("Narrative", value=st.session_state.generated_report, height=300)
         st.caption("Tap to copy:")
@@ -366,35 +397,44 @@ with tab_scribe:
         with c2:
             pdf = generate_pdf(edited_narrative, final_scope, target_carrier, datetime.datetime.now().strftime('%Y-%m-%d'))
             st.download_button("📄 PDF", data=pdf, file_name="Report.pdf", mime="application/pdf")
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # --- TAB 2: CONTENTS ---
 with tab_contents:
-    st.markdown('<p class="tool-desc">Upload room photos to automatically identify, count, and categorize personal property items.</p>', unsafe_allow_html=True)
+    st.markdown('<div class="input-card">', unsafe_allow_html=True)
+    st.markdown('<p class="tool-desc">Upload room photos to list property items.</p>', unsafe_allow_html=True)
     img = st.file_uploader("Room Photos", accept_multiple_files=True, key="content_up")
     if img and st.button("List Items"):
         res = generate_inventory(img)
         st.session_state.contents_data = [{"Item": l.split('|')[0], "Qty": l.split('|')[1]} for l in res.split('\n') if '|' in l]
     if st.session_state.contents_data:
         st.data_editor(st.session_state.contents_data)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # --- TAB 3: STATEMENT ---
 with tab_statement:
-    st.markdown('<p class="tool-desc">Analyze recorded interviews for timeline inconsistencies, coverage triggers, and potential fraud indicators.</p>', unsafe_allow_html=True)
+    st.markdown('<div class="input-card">', unsafe_allow_html=True)
+    st.markdown('<p class="tool-desc">Analyze interviews for fraud indicators.</p>', unsafe_allow_html=True)
     stmt_audio = st.audio_input("Record Interview", key="stmt_rec")
     if stmt_audio and st.button("Analyze Statement"):
         st.write(analyze_statement_batch([stmt_audio.getvalue()]))
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # --- TAB 4: PHOTOS ---
 with tab_photos:
-    st.markdown('<p class="tool-desc">Batch rename hundreds of site photos automatically using AI (e.g., "Kitchen_Overview_Damaged.jpg").</p>', unsafe_allow_html=True)
+    st.markdown('<div class="input-card">', unsafe_allow_html=True)
+    st.markdown('<p class="tool-desc">Batch rename site photos automatically.</p>', unsafe_allow_html=True)
     p = st.file_uploader("Photos to Rename", accept_multiple_files=True, key="photo_up")
     if p and st.button("Rename Batch"):
         st.session_state.renamed_zip = process_photos(p, target_carrier)
         st.success("Done!")
     if st.session_state.renamed_zip:
         st.download_button("Download ZIP", st.session_state.renamed_zip, "photos.zip")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # --- TAB 5: POLICY ---
 with tab_policy:
-    st.markdown('<p class="tool-desc">Upload a PDF policy to ask complex coverage questions and get instant, cited answers.</p>', unsafe_allow_html=True)
+    st.markdown('<div class="input-card">', unsafe_allow_html=True)
+    st.markdown('<p class="tool-desc">Upload policy PDF for coverage answers.</p>', unsafe_allow_html=True)
     st.info("Upload policy PDF (Feature simplified for PWA)")
+    st.markdown('</div>', unsafe_allow_html=True)
