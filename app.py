@@ -30,13 +30,13 @@ except FileNotFoundError:
     st.stop()
 
 # ==========================================
-# 2. PWA & COLOR CORRECTION STYLING
+# 2. PWA & HIGH-CONTRAST STYLING
 # ==========================================
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    /* --- FORCE LIGHT THEME ROOT --- */
+    /* --- ROOT VARIABLES (Force Light Mode) --- */
     :root {
         --primary-color: #2563eb;
         --background-color: #ffffff;
@@ -45,44 +45,60 @@ st.markdown("""
         --font: 'Inter', sans-serif;
     }
     
-    /* --- GLOBAL TEXT FIX --- */
-    /* Forces ALL text to be dark grey/black */
-    .stApp, p, h1, h2, h3, h4, h5, h6, span, div, label {
-        color: #0f172a !important;
+    /* --- GLOBAL RESET --- */
+    .stApp {
+        background-color: #ffffff !important;
         font-family: 'Inter', sans-serif;
     }
     
-    /* --- TAB TEXT FIX --- */
-    /* Specifically targets the tab labels that were invisible */
-    button[data-baseweb="tab"] div p {
+    /* --- TEXT VISIBILITY FIX (The "Weird Color" Fix) --- */
+    /* Forces high-contrast dark text everywhere */
+    h1, h2, h3, h4, h5, h6, p, li, div, label, span {
         color: #0f172a !important;
+    }
+    /* Muted text for descriptions */
+    .tool-desc {
+        color: #475569 !important;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    /* --- TAB TEXT --- */
+    button[data-baseweb="tab"] div p {
+        color: #0f172a !important; 
         font-weight: 600;
     }
-    /* Active tab color */
+    /* Active tab highlight */
     button[data-baseweb="tab"][aria-selected="true"] div p {
         color: #2563eb !important;
     }
 
-    /* --- HIDE STREAMLIT CHROME --- */
-    header { visibility: hidden !important; }
-    footer { display: none !important; }
-    #MainMenu { display: none !important; }
-    .stDeployButton { display: none !important; }
-
-    /* --- INPUTS & RECORDER FIX --- */
-    /* Force Native Recorder to look Light */
-    [data-testid="stAudioInput"] {
+    /* --- EXPANDER (JOB SETUP) --- */
+    .streamlit-expanderHeader {
         background-color: #f1f5f9 !important;
-        border: 1px solid #cbd5e1 !important;
         color: #0f172a !important;
+        border-radius: 8px;
     }
-    /* Force File Uploader to look Light */
-    [data-testid="stFileUploaderDropzone"] {
-        background-color: #f1f5f9 !important;
-        border: 1px dashed #cbd5e1 !important;
+    .streamlit-expanderContent {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #e2e8f0;
+        border-top: none;
     }
-    [data-testid="stFileUploaderDropzone"] div, [data-testid="stFileUploaderDropzone"] span, [data-testid="stFileUploaderDropzone"] small {
-        color: #64748b !important;
+
+    /* --- INPUTS & RECORDER --- */
+    [data-testid="stAudioInput"] {
+        background-color: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 10px;
+        border-radius: 12px;
+    }
+    /* Input fields background */
+    input, textarea, .stSelectbox > div > div {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border-color: #cbd5e1 !important;
     }
 
     /* --- BUTTONS --- */
@@ -91,15 +107,16 @@ st.markdown("""
         color: white !important;
         border: none !important;
         border-radius: 8px !important;
+        font-weight: 600 !important;
         height: 3rem !important;
+        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
     }
 
-    /* --- EXPANDER (JOB SETUP) --- */
-    .streamlit-expanderHeader {
-        background-color: #f8fafc !important;
-        border-radius: 8px !important;
-        color: #0f172a !important;
-    }
+    /* --- HIDE STREAMLIT CHROME --- */
+    header { visibility: hidden !important; }
+    footer { display: none !important; }
+    #MainMenu { display: none !important; }
+    .stDeployButton { display: none !important; }
     
 </style>
 
@@ -136,7 +153,7 @@ if "contents_data" not in st.session_state: st.session_state.contents_data = []
 
 def analyze_multimodal_batch(audio_list, visual_list, carrier, loss_type, guidelines):
     genai.configure(api_key=api_key)
-    guide_text = f"STRICTLY FOLLOW: {guidelines}" if guidelines else f"Adopt reporting style of {carrier}."
+    guide_text = f"STRICTLY FOLLOW: {guidelines}" if guidelines else f"Adopt the standard reporting style of {carrier}."
     
     prompt_parts = []
     sys_prompt = f"""
@@ -264,14 +281,14 @@ def process_photos(uploaded_files, carrier):
     return zip_buffer.getvalue()
 
 # ==========================================
-# 4. MAIN LAYOUT (MOBILE OPTIMIZED)
+# 4. MAIN LAYOUT
 # ==========================================
 
 # --- HEADER ---
 st.title("ClaimScribe")
-st.caption("AI Field Assistant v7.11")
+st.caption("AI Field Assistant v7.12")
 
-# --- JOB SETUP (Moved from Sidebar to Main Page) ---
+# --- JOB SETUP (Main Page) ---
 with st.expander("📋 **Job Setup & Carrier**", expanded=True):
     col_a, col_b = st.columns(2)
     with col_a:
@@ -292,11 +309,11 @@ tab_scribe, tab_contents, tab_statement, tab_photos, tab_policy = st.tabs([
 
 # --- TAB 1: SCRIBE ---
 with tab_scribe:
+    st.markdown('<p class="tool-desc">Record audio notes and upload photos to generate professional Xactimate F9 Notes and preliminary scopes.</p>', unsafe_allow_html=True)
+    
+    # 1. Capture
     st.markdown("##### 1. Capture Field Data")
-    
-    # Clean Native Recorder
     audio_scribe = st.audio_input("Record Field Note", label_visibility="collapsed")
-    
     uploaded_visuals = st.file_uploader("Upload Photos/Videos", type=["jpg", "png", "jpeg", "mp4", "mov"], accept_multiple_files=True, key="scribe_visuals")
     if uploaded_visuals: st.session_state.scribe_visual_buffer = uploaded_visuals
     
@@ -308,7 +325,7 @@ with tab_scribe:
         st.info(f"**Ready:** {'Audio Set' if has_audio else 'No Audio'} | {vis_count} Files")
         
         if st.button("🚀 Generate Report", type="primary"):
-            with st.spinner("Scribing..."):
+            with st.spinner("Synthesizing..."):
                 audio_list = [audio_scribe.getvalue()] if audio_scribe else []
                 raw = analyze_multimodal_batch(audio_list, st.session_state.scribe_visual_buffer, target_carrier, loss_type, custom_guidelines)
                 
@@ -323,7 +340,7 @@ with tab_scribe:
             st.session_state.scribe_visual_buffer = []
             st.rerun()
 
-    # Results Section
+    # Results
     if st.session_state.generated_report:
         st.markdown("---")
         st.markdown("##### 2. Export")
@@ -346,6 +363,7 @@ with tab_scribe:
 
 # --- TAB 2: CONTENTS ---
 with tab_contents:
+    st.markdown('<p class="tool-desc">Upload room photos to automatically identify, count, and categorize personal property items.</p>', unsafe_allow_html=True)
     img = st.file_uploader("Room Photos", accept_multiple_files=True, key="content_up")
     if img and st.button("List Items"):
         res = generate_inventory(img)
@@ -355,12 +373,14 @@ with tab_contents:
 
 # --- TAB 3: STATEMENT ---
 with tab_statement:
+    st.markdown('<p class="tool-desc">Analyze recorded interviews for timeline inconsistencies, coverage triggers, and fraud indicators.</p>', unsafe_allow_html=True)
     stmt_audio = st.audio_input("Record Interview", key="stmt_rec")
     if stmt_audio and st.button("Analyze Statement"):
         st.write(analyze_statement_batch([stmt_audio.getvalue()]))
 
 # --- TAB 4: PHOTOS ---
 with tab_photos:
+    st.markdown('<p class="tool-desc">Batch rename hundreds of site photos automatically using AI (e.g., "Kitchen_Overview_Damaged.jpg").</p>', unsafe_allow_html=True)
     p = st.file_uploader("Photos to Rename", accept_multiple_files=True, key="photo_up")
     if p and st.button("Rename Batch"):
         st.session_state.renamed_zip = process_photos(p, target_carrier)
@@ -370,5 +390,5 @@ with tab_photos:
 
 # --- TAB 5: POLICY ---
 with tab_policy:
-    # Basic placeholder for policy logic to keep code clean
-    st.info("Upload policy PDF to chat (Feature simplified for PWA)")
+    st.markdown('<p class="tool-desc">Upload a PDF policy to ask complex coverage questions and get instant, cited answers.</p>', unsafe_allow_html=True)
+    st.info("Upload policy PDF (Feature simplified for PWA)")
