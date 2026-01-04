@@ -30,61 +30,86 @@ except FileNotFoundError:
     st.stop()
 
 # ==========================================
-# 2. PWA & EMOJI-SAFE STYLING (V7.15)
+# 2. "MODERN APP" STYLING (V7.14)
 # ==========================================
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    /* --- ROOT & RESET --- */
+    /* --- ROOT VARIABLES --- */
     :root {
-        --primary: #2563eb;
-        --bg-color: #ffffff;
+        --primary: #3b82f6;
+        --primary-dark: #2563eb;
+        --bg-color: #f1f5f9; /* Slate-100 */
         --card-bg: #ffffff;
-        --text-color: #1e293b;
-        --border-color: #e2e8f0;
+        --text-dark: #0f172a; /* Slate-900 */
+        --text-grey: #64748b; /* Slate-500 */
+        --border: #e2e8f0;
     }
-    
-    /* --- FONT STACK (Crucial for Emojis) --- */
-    /* We prioritize Emoji fonts to prevent them from turning monochrome */
+
     .stApp {
-        background-color: #f8fafc !important;
-        color: #1e293b !important;
-        font-family: "Inter", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif !important;
+        background-color: var(--bg-color) !important;
+        font-family: 'Inter', sans-serif;
     }
 
-    /* --- TYPOGRAPHY --- */
-    h1, h2, h3 { color: #0f172a !important; font-weight: 700 !important; letter-spacing: -0.025em; }
-    p, label, div, span { color: #334155 !important; }
-    .tool-desc { font-size: 0.9rem; color: #64748b !important; margin-bottom: 1rem; }
-
-    /* --- APP HEADER (Gradient Bar) --- */
+    /* --- CUSTOM APP BAR (HEADER) --- */
+    /* Hides default streamlit title to replace with custom HTML */
     .stApp > header { display: none !important; }
+    
     .custom-header {
         background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
         padding: 1.5rem 1rem;
-        margin: -4rem -4rem 1.5rem -4rem;
+        margin: -4rem -4rem 1.5rem -4rem; /* Negative margins to stretch full width */
         color: white;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         text-align: center;
     }
-    .custom-header h1 { color: white !important; margin: 0; font-size: 1.5rem; }
-    .custom-header p { color: rgba(255,255,255,0.8) !important; margin: 0; font-size: 0.85rem; }
+    .custom-header h1 {
+        color: white !important;
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+    .custom-header p {
+        color: rgba(255,255,255,0.8) !important;
+        margin: 0;
+        font-size: 0.85rem;
+    }
 
-    /* --- CARDS (White floating boxes) --- */
+    /* --- MODERN CARDS --- */
     .input-card { 
-        background-color: #ffffff;
+        background-color: var(--card-bg);
         padding: 1.5rem; 
-        border-radius: 16px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border-radius: 16px; /* Softer rounded corners */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         border: 1px solid white;
         margin-bottom: 20px;
     }
 
-    /* --- JOB SETUP EXPANDER --- */
+    /* --- TYPOGRAPHY FIXES --- */
+    h1, h2, h3, h4 { color: var(--text-dark) !important; font-weight: 700 !important; }
+    p, label, li, div { color: #334155 !important; }
+    .tool-desc { font-size: 0.95rem; color: var(--text-grey) !important; margin-bottom: 1.5rem; }
+
+    /* --- INPUTS & DROPDOWNS (Polished) --- */
+    div[data-baseweb="select"] > div, input[type="text"], textarea {
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        color: var(--text-dark) !important;
+        border-radius: 10px !important;
+        transition: border-color 0.2s;
+    }
+    /* Focus State (The "Glow") */
+    input:focus, textarea:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    }
+
+    /* --- JOB SETUP EXPANDER (Styled) --- */
     .streamlit-expanderHeader {
-        background-color: #eff6ff !important;
-        color: #1e40af !important;
+        background-color: #eff6ff !important; /* Light blue tint */
+        color: #1e40af !important; /* Dark blue text */
         border: 1px solid #dbeafe !important;
         border-radius: 10px !important;
     }
@@ -96,14 +121,30 @@ st.markdown("""
         border-bottom-right-radius: 10px;
     }
 
-    /* --- INPUTS & RECORDER --- */
-    div[data-baseweb="select"] > div, input[type="text"], textarea {
-        background-color: #ffffff !important;
-        border: 1px solid #cbd5e1 !important;
-        color: #0f172a !important;
+    /* --- BUTTONS (Pop) --- */
+    div.stButton > button {
+        background: linear-gradient(to bottom, #3b82f6, #2563eb) !important;
+        color: white !important;
+        border: none !important;
         border-radius: 10px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.02em;
+        height: 3.2rem !important;
+        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.25);
+        transition: transform 0.1s;
     }
-    
+    div.stButton > button:active {
+        transform: scale(0.98);
+    }
+    /* Secondary Button */
+    div.stButton > button[kind="secondary"] {
+        background: white !important;
+        color: #64748b !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    /* --- NATIVE AUDIO RECORDER --- */
     [data-testid="stAudioInput"] {
         background-color: #ffffff !important;
         border: 1px solid #e2e8f0 !important;
@@ -112,24 +153,7 @@ st.markdown("""
         box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
 
-    /* --- BUTTONS --- */
-    div.stButton > button {
-        background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%) !important;
-        color: white !important;
-        border: 1px solid #1d4ed8 !important;
-        border-radius: 10px !important;
-        font-weight: 600 !important;
-        height: 3.2rem !important;
-        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.25);
-    }
-    div.stButton > button[kind="secondary"] {
-        background: white !important;
-        color: #64748b !important;
-        border: 1px solid #cbd5e1 !important;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
-
-    /* --- HIDE DEFAULT ELEMENTS --- */
+    /* --- HIDE JANK --- */
     header { visibility: hidden !important; }
     footer { display: none !important; }
     #MainMenu { display: none !important; }
@@ -182,6 +206,12 @@ def analyze_multimodal_batch(audio_list, visual_list, carrier, loss_type, guidel
     1. NO MARKDOWN (No bold, italics).
     2. UPPERCASE HEADERS.
     3. PLAIN TEXT.
+    
+    SECTIONS:
+    GENERAL OVERVIEW
+    ORIGIN AND CAUSE
+    RESULTING DAMAGES
+    RESTORATION RECOMMENDATIONS
     
     OUTPUT STRUCTURE:
     ---NARRATIVE START---
@@ -299,7 +329,7 @@ def process_photos(uploaded_files, carrier):
 st.markdown("""
     <div class="custom-header">
         <h1>🛡️ ClaimScribe</h1>
-        <p>AI Field Assistant v7.15</p>
+        <p>AI Field Assistant v7.14</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -326,7 +356,7 @@ with tab_scribe:
     
     # 1. Capture Card
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
-    st.markdown("##### 🎙️ Capture Field Data") # Emoji added here
+    st.markdown("##### 1. Capture Field Data")
     audio_scribe = st.audio_input("Record Field Note", label_visibility="collapsed")
     uploaded_visuals = st.file_uploader("Upload Photos/Videos", type=["jpg", "png", "jpeg", "mp4", "mov"], accept_multiple_files=True, key="scribe_visuals")
     if uploaded_visuals: st.session_state.scribe_visual_buffer = uploaded_visuals
@@ -358,7 +388,7 @@ with tab_scribe:
     # Results Card
     if st.session_state.generated_report:
         st.markdown('<div class="input-card">', unsafe_allow_html=True)
-        st.markdown("##### 📤 Export") # Emoji added here
+        st.markdown("##### 2. Export")
         edited_narrative = st.text_area("Narrative", value=st.session_state.generated_report, height=300)
         st.caption("Tap to copy:")
         st.code(edited_narrative, language="text")
@@ -382,7 +412,7 @@ with tab_contents:
     st.markdown('<p class="tool-desc">Upload room photos to list property items.</p>', unsafe_allow_html=True)
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
     img = st.file_uploader("Room Photos", accept_multiple_files=True, key="content_up")
-    if img and st.button("📦 List Items"):
+    if img and st.button("List Items"):
         res = generate_inventory(img)
         st.session_state.contents_data = [{"Item": l.split('|')[0], "Qty": l.split('|')[1]} for l in res.split('\n') if '|' in l]
     if st.session_state.contents_data:
@@ -394,7 +424,7 @@ with tab_statement:
     st.markdown('<p class="tool-desc">Analyze recorded interviews for risks.</p>', unsafe_allow_html=True)
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
     stmt_audio = st.audio_input("Record Interview", key="stmt_rec")
-    if stmt_audio and st.button("🕵️ Analyze Statement"):
+    if stmt_audio and st.button("Analyze Statement"):
         st.write(analyze_statement_batch([stmt_audio.getvalue()]))
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -403,7 +433,7 @@ with tab_photos:
     st.markdown('<p class="tool-desc">Batch rename site photos using AI.</p>', unsafe_allow_html=True)
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
     p = st.file_uploader("Photos to Rename", accept_multiple_files=True, key="photo_up")
-    if p and st.button("📸 Rename Batch"):
+    if p and st.button("Rename Batch"):
         st.session_state.renamed_zip = process_photos(p, target_carrier)
         st.success("Done!")
     if st.session_state.renamed_zip:
