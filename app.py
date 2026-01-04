@@ -1,5 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
+# Note: We removed the ugly 'streamlit_mic_recorder' import
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import colors
@@ -30,46 +31,48 @@ except FileNotFoundError:
     st.stop()
 
 # ==========================================
-# 2. PWA & "NUCLEAR" STYLING
+# 2. PWA & "NUCLEAR" LIGHT MODE STYLING
 # ==========================================
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    /* --- FORCE CLEAN LOOK --- */
-    .stApp { 
+    /* --- FORCE LIGHT MODE (The Silver Bullet) --- */
+    :root {
+        --primary-color: #2563eb;
+        --background-color: #ffffff;
+        --secondary-background-color: #f8fafc;
+        --text-color: #0f172a;
+        --font: 'Inter', sans-serif;
+    }
+    
+    .stApp {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
         font-family: 'Inter', sans-serif;
     }
+
+    /* --- HIDE STREAMLIT BRANDING (AGGRESSIVE) --- */
+    /* Top Bar */
+    header { visibility: hidden !important; }
+    /* Footer */
+    footer { visibility: hidden !important; height: 0px !important; }
+    /* Menu & Deploy Button */
+    #MainMenu { visibility: hidden !important; }
+    .stDeployButton { display: none !important; }
     
-    /* --- HIDE ALL STREAMLIT BRANDING (The "Pet Project" Remover) --- */
-    
-    /* 1. Hide the top colored decoration bar */
-    header[data-testid="stHeader"] {
-        display: none !important;
-    }
-    
-    /* 2. Hide the "Hosted with Streamlit" Footer */
-    footer {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0px !important;
-    }
-    
-    /* 3. Hide the Hamburger Menu & Github Icon */
-    #MainMenu {
-        display: none !important;
-        visibility: hidden !important;
-    }
-    .stDeployButton {
-        display: none !important;
-    }
-    
-    /* 4. Hide the "Stop Recording" container border to make it look native */
+    /* --- NATIVE AUDIO RECORDER STYLING --- */
+    /* Makes the new recorder look like a clean iOS component */
     [data-testid="stAudioInput"] {
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 10px;
-        background: white;
+        background-color: #f1f5f9 !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        padding: 10px !important;
+        color: #0f172a !important;
+    }
+    /* The delete/download buttons inside the recorder */
+    [data-testid="stAudioInput"] button {
+        color: #334155 !important;
     }
 
     /* --- CARD STYLING --- */
@@ -77,26 +80,31 @@ st.markdown("""
         background-color: #ffffff; 
         padding: 1.5rem; 
         border-radius: 12px; 
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         border: 1px solid #e2e8f0;
         margin-bottom: 20px;
     }
 
     /* --- BUTTON STYLING --- */
-    .stButton button {
+    div.stButton > button {
         background-color: #2563eb !important;
         color: white !important;
         border: none !important;
         border-radius: 8px !important;
         font-weight: 600 !important;
-        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2) !important;
+        height: 3rem !important;
     }
 
-    /* --- MOBILE PADDING --- */
-    .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 3rem !important;
+    /* --- DROPDOWN FIX --- */
+    /* Force white background so text is readable */
+    div[data-baseweb="select"] > div {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
     }
+    div[data-baseweb="popover"] {
+        background-color: #ffffff !important;
+    }
+    
 </style>
 
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -280,7 +288,7 @@ def process_photos(uploaded_files):
 
 with st.sidebar:
     st.title("ClaimScribe")
-    st.caption("AI Field Assistant v7.9")
+    st.caption("AI Field Assistant v7.10")
     
     st.subheader("1. Client Profile")
     carrier_options = ["State Farm", "Allstate", "Liberty Mutual", "Chubb", "USAA", "Other"]
@@ -312,34 +320,38 @@ with tab_scribe:
         st.markdown("#### 1. Capture Field Data")
         
         st.write(" **A. Audio Notes**")
-        # NATIVE AUDIO INPUT (Clean Look)
-        audio_scribe = st.audio_input("Record Note", label_visibility="collapsed")
+        
+        # --- NEW NATIVE AUDIO RECORDER ---
+        audio_scribe = st.audio_input("Record Field Note", label_visibility="collapsed")
         
         st.write(" **B. Visual Evidence**")
         uploaded_visuals = st.file_uploader("Upload Photos/Videos", type=["jpg", "png", "jpeg", "mp4", "mov"], accept_multiple_files=True, key="scribe_visuals")
         if uploaded_visuals:
             st.session_state.scribe_visual_buffer = uploaded_visuals
         
-        # Audio handling for native input
+        # Check inputs
         has_audio = audio_scribe is not None
         vis_count = len(st.session_state.scribe_visual_buffer)
         
         if has_audio or vis_count > 0:
             st.info(f"**Ready:** {'Audio Set' if has_audio else 'No Audio'} | {vis_count} Visual Files")
             
+            # --- GENERATE BUTTON ---
             if st.button("🚀 Generate Report", type="primary"):
                 with st.spinner("Synthesizing..."):
-                    # Wrap audio in list for processing
+                    # Process native audio object
                     audio_list = [audio_scribe.getvalue()] if audio_scribe else []
                     
                     raw_text = analyze_multimodal_batch(audio_list, st.session_state.scribe_visual_buffer)
                     if raw_text:
                         try:
+                            # Split logic
                             if "---NARRATIVE START---" in raw_text:
                                 narrative = raw_text.split("---NARRATIVE START---")[1].split("---NARRATIVE END---")[0].strip()
                             else:
                                 narrative = raw_text 
                             
+                            # Parse Scope
                             scope_items = extract_scope_items(raw_text)
                             
                             st.session_state.generated_report = narrative
@@ -365,7 +377,11 @@ with tab_scribe:
             st.markdown("---")
             st.markdown("**Preliminary Scope**")
             
-            df_scope = pd.DataFrame(st.session_state.scope_items) if st.session_state.scope_items else pd.DataFrame(columns=["code", "desc", "qty"])
+            if st.session_state.scope_items:
+                df_scope = pd.DataFrame(st.session_state.scope_items)
+            else:
+                df_scope = pd.DataFrame(columns=["code", "desc", "qty"])
+                
             edited_df = st.data_editor(df_scope, num_rows="dynamic", use_container_width=True, key="scope_editor", column_config={"code": "Selector", "desc": "Description", "qty": "Qty"})
             final_scope_items = edited_df.to_dict('records')
 
@@ -379,7 +395,7 @@ with tab_scribe:
                 pdf = generate_pdf(edited_narrative, final_scope_items)
                 st.download_button("📄 PDF", data=pdf, file_name="Report.pdf", mime="application/pdf")
 
-# (Other tabs are standard)
+# (Other tabs follow similar pattern)
 with tab_contents:
     col1, col2 = st.columns(2)
     with col1:
@@ -400,7 +416,7 @@ with tab_photos:
         st.download_button("Download ZIP", st.session_state.renamed_zip, "photos.zip")
 
 with tab_statement:
-    # UPDATED TO NATIVE AUDIO INPUT
-    audio = st.audio_input("Record Statement", key="stmt")
-    if audio and st.button("Analyze"):
-        st.write(analyze_statement_batch([audio.getvalue()]))
+    # UPDATED NATIVE RECORDER
+    stmt_audio = st.audio_input("Record Statement", key="stmt_rec")
+    if stmt_audio and st.button("Analyze"):
+        st.write(analyze_statement_batch([stmt_audio.getvalue()]))
