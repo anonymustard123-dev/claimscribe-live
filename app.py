@@ -14,7 +14,7 @@ from PIL import Image
 from pypdf import PdfReader
 
 # ==========================================
-# 1. SETUP & MODERN STYLING (V7.6 Production)
+# 1. SETUP & MODERN STYLING (V7.7 PWA Edition)
 # ==========================================
 st.set_page_config(page_title="ClaimScribe Pro", page_icon="🛡️", layout="wide")
 
@@ -26,6 +26,7 @@ except FileNotFoundError:
     st.error("⚠️ API Key not found. Please set GOOGLE_API_KEY in your secrets.")
     st.stop()
 
+# --- PWA & STYLING BLOCK ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -75,6 +76,10 @@ st.markdown("""
         font-size: 0.95rem;
     }
 </style>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#ffffff">
 """, unsafe_allow_html=True)
 
 # Load Truth Data
@@ -106,7 +111,7 @@ if "contents_data" not in st.session_state: st.session_state.contents_data = []
 # ==========================================
 with st.sidebar:
     st.title("ClaimScribe")
-    st.caption("AI Field Assistant v7.6")
+    st.caption("AI Field Assistant v7.7 (PWA)")
     
     st.markdown("---")
     
