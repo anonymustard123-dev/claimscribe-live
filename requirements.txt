@@ -1,7 +1,8 @@
-streamlit
+streamlit>=1.40.0
 google-generativeai
 streamlit-mic-recorder
 pandas
 reportlab
 pypdf
 Pillow
+
