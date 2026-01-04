@@ -30,89 +30,95 @@ except FileNotFoundError:
     st.stop()
 
 # ==========================================
-# 2. PWA & HIGH-CONTRAST STYLING
+# 2. PROFESSIONAL UI STYLING (V7.13)
 # ==========================================
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    /* --- ROOT VARIABLES (Force Light Mode) --- */
+    /* --- ROOT & RESET --- */
     :root {
-        --primary-color: #2563eb;
-        --background-color: #ffffff;
-        --secondary-background-color: #f8fafc;
-        --text-color: #0f172a;
-        --font: 'Inter', sans-serif;
+        --primary: #2563eb;
+        --bg-color: #ffffff;
+        --card-bg: #ffffff;
+        --text-color: #1e293b;
+        --border-color: #e2e8f0;
     }
     
-    /* --- GLOBAL RESET --- */
     .stApp {
-        background-color: #ffffff !important;
+        background-color: #f8fafc !important; /* Very subtle light grey background for depth */
+        color: #1e293b !important;
         font-family: 'Inter', sans-serif;
     }
-    
-    /* --- TEXT VISIBILITY FIX (The "Weird Color" Fix) --- */
-    /* Forces high-contrast dark text everywhere */
-    h1, h2, h3, h4, h5, h6, p, li, div, label, span {
-        color: #0f172a !important;
-    }
-    /* Muted text for descriptions */
-    .tool-desc {
-        color: #475569 !important;
-        font-size: 0.95rem;
-        margin-bottom: 1.5rem;
-        line-height: 1.5;
-    }
 
-    /* --- TAB TEXT --- */
-    button[data-baseweb="tab"] div p {
-        color: #0f172a !important; 
-        font-weight: 600;
-    }
-    /* Active tab highlight */
-    button[data-baseweb="tab"][aria-selected="true"] div p {
-        color: #2563eb !important;
-    }
+    /* --- TYPOGRAPHY --- */
+    h1, h2, h3 { color: #0f172a !important; font-weight: 700 !important; letter-spacing: -0.025em; }
+    p, label, div, span { color: #334155 !important; }
+    .tool-desc { font-size: 0.9rem; color: #64748b !important; margin-bottom: 1rem; }
 
-    /* --- EXPANDER (JOB SETUP) --- */
+    /* --- FIX THE BLACK EXPANDER (Job Setup) --- */
+    /* This makes the 'Job Setup' box look like a clean white card */
     .streamlit-expanderHeader {
-        background-color: #f1f5f9 !important;
+        background-color: #ffffff !important;
         color: #0f172a !important;
-        border-radius: 8px;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
     .streamlit-expanderContent {
         background-color: #ffffff !important;
-        color: #0f172a !important;
-        border: 1px solid #e2e8f0;
-        border-top: none;
+        border-left: 1px solid #e2e8f0;
+        border-right: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        color: #334155 !important;
     }
 
-    /* --- INPUTS & RECORDER --- */
-    [data-testid="stAudioInput"] {
-        background-color: #f8fafc !important;
-        border: 1px solid #cbd5e1 !important;
-        padding: 10px;
-        border-radius: 12px;
-    }
-    /* Input fields background */
-    input, textarea, .stSelectbox > div > div {
+    /* --- INPUT FIELDS (No More Black Boxes) --- */
+    /* Targets dropdowns and text inputs */
+    div[data-baseweb="select"] > div, 
+    input[type="text"], 
+    textarea {
         background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
         color: #0f172a !important;
-        border-color: #cbd5e1 !important;
+        border-radius: 6px !important;
+    }
+    
+    /* --- NATIVE AUDIO RECORDER (Clean Look) --- */
+    [data-testid="stAudioInput"] {
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 12px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
-    /* --- BUTTONS --- */
+    /* --- BUTTONS (Professional Gradient) --- */
     div.stButton > button {
-        background-color: #2563eb !important;
+        background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%) !important;
         color: white !important;
-        border: none !important;
+        border: 1px solid #1d4ed8 !important;
         border-radius: 8px !important;
-        font-weight: 600 !important;
-        height: 3rem !important;
-        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        font-weight: 500 !important;
+        padding: 0.5rem 1rem !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        transition: all 0.2s ease;
+    }
+    div.stButton > button:active {
+        transform: translateY(1px);
+        box-shadow: none;
+    }
+    
+    /* Secondary Action Button (Clear All) */
+    div.stButton > button[kind="secondary"] {
+        background: #ffffff !important;
+        color: #64748b !important;
+        border: 1px solid #cbd5e1 !important;
     }
 
-    /* --- HIDE STREAMLIT CHROME --- */
+    /* --- HIDE JANKY ELEMENTS --- */
     header { visibility: hidden !important; }
     footer { display: none !important; }
     #MainMenu { display: none !important; }
@@ -286,7 +292,7 @@ def process_photos(uploaded_files, carrier):
 
 # --- HEADER ---
 st.title("ClaimScribe")
-st.caption("AI Field Assistant v7.12")
+st.caption("AI Field Assistant v7.13")
 
 # --- JOB SETUP (Main Page) ---
 with st.expander("📋 **Job Setup & Carrier**", expanded=True):
@@ -373,7 +379,7 @@ with tab_contents:
 
 # --- TAB 3: STATEMENT ---
 with tab_statement:
-    st.markdown('<p class="tool-desc">Analyze recorded interviews for timeline inconsistencies, coverage triggers, and fraud indicators.</p>', unsafe_allow_html=True)
+    st.markdown('<p class="tool-desc">Analyze recorded interviews for timeline inconsistencies, coverage triggers, and potential fraud indicators.</p>', unsafe_allow_html=True)
     stmt_audio = st.audio_input("Record Interview", key="stmt_rec")
     if stmt_audio and st.button("Analyze Statement"):
         st.write(analyze_statement_batch([stmt_audio.getvalue()]))
