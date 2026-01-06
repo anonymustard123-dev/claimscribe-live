@@ -11,6 +11,7 @@ import zipfile
 import re
 from PIL import Image
 from pypdf import PdfReader
+import os  # <--- CRITICAL FOR RAILWAY
 
 # ==========================================
 # 1. SETUP & CONFIG
@@ -22,15 +23,17 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 🔑 API KEY
-try:
-    api_key = st.secrets["GOOGLE_API_KEY"]
-except FileNotFoundError:
-    st.error("⚠️ API Key not found.")
-    st.stop()
+# 🔑 API KEY (Robust Retrieval for Railway & Local)
+api_key = os.getenv("GOOGLE_API_KEY")
+if not api_key:
+    try:
+        api_key = st.secrets["GOOGLE_API_KEY"]
+    except (FileNotFoundError, KeyError):
+        st.error("⚠️ API Key not found. Please set GOOGLE_API_KEY in Railway Variables.")
+        st.stop()
 
 # ==========================================
-# 2. "MODERN APP" STYLING (V7.15 - PWA FIX)
+# 2. MODERN APP & PWA STYLING (V7.15 - PWA FIX)
 # ==========================================
 st.markdown("""
 <style>
@@ -161,17 +164,15 @@ st.markdown("""
     
 </style>
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#2563eb"> 
-<link rel="apple-touch-icon" href="https://em-content.zobj.net/source/apple/391/shield_1f6e1.png">
-<link rel="icon" type="image/png" href="https://em-content.zobj.net/source/apple/391/shield_1f6e1.png">
-""", unsafe_allow_html=True)
+<meta name="apple-mobile-web-app-title" content="ClaimScribe">
 
-# Placeholder for future CSV logic
-# (CSV requirement removed per user request)
-xactimate_database = "" 
-database_loaded = False
+<link rel="apple-touch-icon" href="https://em-content.zobj.net/source/apple/354/shield_1f6e1-fe0f.png">
+<link rel="shortcut icon" href="https://em-content.zobj.net/source/apple/354/shield_1f6e1-fe0f.png">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2563eb"> 
+""", unsafe_allow_html=True)
 
 # Session State
 if "history" not in st.session_state: st.session_state.history = []
@@ -196,7 +197,7 @@ def analyze_multimodal_batch(audio_list, visual_list, carrier, loss_type, guidel
     sys_prompt = f"""
     Role: Senior Adjuster for {carrier}.
     Task: Write Xactimate F9 Note.
-    CONSTRAINTS: Loss: {loss_type} | {guide_text}
+    CONTEXT: Loss: {loss_type} | {guide_text}
     
     RULES:
     1. NO MARKDOWN (No bold, italics).
