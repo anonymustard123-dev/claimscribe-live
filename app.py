@@ -33,7 +33,7 @@ if not api_key:
         st.stop()
 
 # ==========================================
-# 2. MODERN UI & DARK MODE FIX (V7.19)
+# 2. MODERN UI & MOBILE FIXES (V7.20)
 # ==========================================
 st.markdown("""
 <style>
@@ -50,16 +50,14 @@ st.markdown("""
         --input-bg: #f1f5f9;
     }
 
-    /* --- FORCE LIGHT MODE TEXT --- */
-    /* This fixes the "Invisible Text" issue on Dark Mode phones */
-    .stApp, p, h1, h2, h3, h4, h5, h6, span, div, label, li {
-        color: var(--text-dark) !important;
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-    }
-    
-    /* Force Background to be Light */
-    .stApp {
+    /* --- FORCE LIGHT MODE TEXT & BG --- */
+    html, body, .stApp {
         background-color: var(--bg-color) !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        color: var(--text-dark) !important;
+    }
+    p, h1, h2, h3, h4, h5, h6, span, div, label, li {
+        color: var(--text-dark) !important;
     }
 
     /* --- CLEAN HEADER --- */
@@ -71,16 +69,15 @@ st.markdown("""
         margin-bottom: 0.5rem;
     }
     .custom-header h1 {
-        color: var(--text-dark) !important;
         margin: 0;
-        font-size: 1.8rem;
+        font-size: 2rem; /* Slightly bigger header */
         font-weight: 800; 
         letter-spacing: -0.03em;
     }
     .custom-header p {
         color: var(--text-grey) !important;
         font-weight: 500;
-        font-size: 0.9rem;
+        font-size: 1rem;
         margin-top: 0.2rem;
     }
 
@@ -94,13 +91,19 @@ st.markdown("""
         margin-bottom: 24px;
     }
 
-    /* --- EXPANDER (JOB CONFIG) --- */
+    /* --- EXPANDER (JOB CONFIG) - FIXED MOBILE --- */
     .streamlit-expanderHeader {
         background-color: white !important;
         border-radius: 12px !important;
         border: 1px solid #e2e8f0 !important;
         color: var(--text-dark) !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
+        font-size: 1.1rem !important;
+        padding: 1rem !important; /* More breathing room */
+    }
+    .streamlit-expanderHeader p {
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
     }
     .streamlit-expanderContent {
         background-color: white !important;
@@ -108,11 +111,14 @@ st.markdown("""
         border-top: none;
         border-bottom-left-radius: 12px;
         border-bottom-right-radius: 12px;
-        color: var(--text-dark) !important;
+        padding: 20px !important;
     }
-    /* Fix text inside the expander specifically */
-    .streamlit-expanderContent p, .streamlit-expanderContent label {
-        color: var(--text-dark) !important;
+
+    /* --- TABS (BIGGER ICONS & TEXT) --- */
+    div[data-baseweb="tab-list"] p {
+        font-size: 1.2rem !important; /* Much bigger tab labels */
+        font-weight: 700 !important;
+        padding: 0.5rem 0 !important;
     }
 
     /* --- INPUTS --- */
@@ -121,10 +127,9 @@ st.markdown("""
     textarea {
         background-color: var(--input-bg) !important;
         border: 1px solid transparent !important;
-        color: var(--text-dark) !important; /* Force text black inside inputs */
+        color: var(--text-dark) !important;
         border-radius: 12px !important;
     }
-    /* Fix Dropdown Text specifically */
     div[data-baseweb="select"] span {
         color: var(--text-dark) !important;
     }
@@ -132,17 +137,15 @@ st.markdown("""
     /* --- BUTTONS --- */
     div.stButton > button {
         background-color: var(--primary) !important;
-        color: white !important; /* Keep button text white */
+        color: white !important;
         border: none !important;
         border-radius: 12px !important;
         font-weight: 600 !important;
         height: 3.5rem !important;
         box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        font-size: 1.05rem !important;
     }
-    /* Explicitly target button text to ensure it stays white */
-    div.stButton > button p {
-        color: white !important;
-    }
+    div.stButton > button p { color: white !important; }
     
     div.stButton > button[kind="secondary"] {
         background-color: white !important;
@@ -150,15 +153,18 @@ st.markdown("""
         border: 2px solid #e2e8f0 !important;
         box-shadow: none !important;
     }
-    div.stButton > button[kind="secondary"] p {
-        color: var(--text-grey) !important;
-    }
+    div.stButton > button[kind="secondary"] p { color: var(--text-grey) !important; }
 
-    /* --- HIDE JANK --- */
+    /* --- HIDE JANK & FIX FOOTER BAR --- */
     header { visibility: hidden !important; }
-    footer { display: none !important; }
+    footer, .stFooter { display: none !important; } /* Kill the black bar area */
     #MainMenu { display: none !important; }
     .stDeployButton { display: none !important; }
+    
+    /* Add padding to bottom so scrolling doesn't end abruptly */
+    .main .block-container {
+        padding-bottom: 5rem !important;
+    }
 
     /* --- LOADER --- */
     .loader-container {
@@ -179,7 +185,7 @@ st.markdown("""
     .loader-text {
         margin-top: 1rem;
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         color: var(--text-grey) !important;
         letter-spacing: 0.05em;
     }
@@ -344,8 +350,9 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- JOB SETUP (Top of Page) ---
-with st.expander("⚙️ **Job Configuration**", expanded=True):
+# --- JOB SETUP (Simplified Title) ---
+# Removed bolding and emoji from Python string to let CSS handle styling cleanly
+with st.expander("Job Configuration", expanded=True):
     col_a, col_b = st.columns(2)
     with col_a:
         carrier_options = ["State Farm", "Allstate", "Liberty Mutual", "Chubb", "USAA", "Other"]
