@@ -11,7 +11,7 @@ import zipfile
 import re
 from PIL import Image
 from pypdf import PdfReader
-import os  # <--- CRITICAL FOR RAILWAY
+import os
 
 # ==========================================
 # 1. SETUP & CONFIG
@@ -23,17 +23,17 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 🔑 API KEY (Robust Retrieval for Railway & Local)
+# 🔑 API KEY
 api_key = os.getenv("GOOGLE_API_KEY")
 if not api_key:
     try:
         api_key = st.secrets["GOOGLE_API_KEY"]
     except (FileNotFoundError, KeyError):
-        st.error("⚠️ API Key not found. Please set GOOGLE_API_KEY in Railway Variables.")
+        st.error("⚠️ API Key not found. Please set GOOGLE_API_KEY.")
         st.stop()
 
 # ==========================================
-# 2. MODERN APP & PWA STYLING (V7.15 - PWA FIX)
+# 2. MODERN APP & PWA STYLING (V7.17 - SLEEK LOADERS)
 # ==========================================
 st.markdown("""
 <style>
@@ -43,10 +43,10 @@ st.markdown("""
     :root {
         --primary: #3b82f6;
         --primary-dark: #2563eb;
-        --bg-color: #f1f5f9; /* Slate-100 */
+        --bg-color: #f1f5f9;
         --card-bg: #ffffff;
-        --text-dark: #0f172a; /* Slate-900 */
-        --text-grey: #64748b; /* Slate-500 */
+        --text-dark: #0f172a;
+        --text-grey: #64748b;
         --border: #e2e8f0;
     }
 
@@ -56,13 +56,12 @@ st.markdown("""
     }
 
     /* --- CUSTOM APP BAR (HEADER) --- */
-    /* Hides default streamlit title to replace with custom HTML */
     .stApp > header { display: none !important; }
     
     .custom-header {
         background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
         padding: 1.5rem 1rem;
-        margin: -4rem -4rem 1.5rem -4rem; /* Negative margins to stretch full width */
+        margin: -4rem -4rem 1.5rem -4rem;
         color: white;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         text-align: center;
@@ -84,110 +83,103 @@ st.markdown("""
     .input-card { 
         background-color: var(--card-bg);
         padding: 1.5rem; 
-        border-radius: 16px; /* Softer rounded corners */
+        border-radius: 16px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         border: 1px solid white;
         margin-bottom: 20px;
     }
 
-    /* --- TYPOGRAPHY FIXES --- */
+    /* --- TYPOGRAPHY & INPUTS --- */
     h1, h2, h3, h4 { color: var(--text-dark) !important; font-weight: 700 !important; }
     p, label, li, div { color: #334155 !important; }
     .tool-desc { font-size: 0.95rem; color: var(--text-grey) !important; margin-bottom: 1.5rem; }
 
-    /* --- INPUTS & DROPDOWNS (Polished) --- */
     div[data-baseweb="select"] > div, input[type="text"], textarea {
         background-color: #ffffff !important;
         border: 1px solid #cbd5e1 !important;
         color: var(--text-dark) !important;
         border-radius: 10px !important;
-        transition: border-color 0.2s;
     }
-    /* Focus State (The "Glow") */
     input:focus, textarea:focus {
         border-color: var(--primary) !important;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
     }
 
-    /* --- JOB SETUP EXPANDER (Styled) --- */
-    .streamlit-expanderHeader {
-        background-color: #eff6ff !important; /* Light blue tint */
-        color: #1e40af !important; /* Dark blue text */
-        border: 1px solid #dbeafe !important;
-        border-radius: 10px !important;
-    }
-    .streamlit-expanderContent {
-        background-color: white !important;
-        border: 1px solid #e2e8f0;
-        border-top: none;
-        border-bottom-left-radius: 10px;
-        border-bottom-right-radius: 10px;
-    }
-
-    /* --- BUTTONS (Pop) --- */
+    /* --- BUTTONS --- */
     div.stButton > button {
         background: linear-gradient(to bottom, #3b82f6, #2563eb) !important;
         color: white !important;
         border: none !important;
         border-radius: 10px !important;
         font-weight: 600 !important;
-        letter-spacing: 0.02em;
         height: 3.2rem !important;
         box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.25);
-        transition: transform 0.1s;
-    }
-    div.stButton > button:active {
-        transform: scale(0.98);
-    }
-    /* Secondary Button */
-    div.stButton > button[kind="secondary"] {
-        background: white !important;
-        color: #64748b !important;
-        border: 1px solid #cbd5e1 !important;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
 
-    /* --- NATIVE AUDIO RECORDER --- */
-    [data-testid="stAudioInput"] {
-        background-color: #ffffff !important;
-        border: 1px solid #e2e8f0 !important;
-        padding: 12px;
-        border-radius: 14px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    }
-
-    /* --- HIDE JANK --- */
+    /* --- HIDE STREAMLIT UI --- */
     header { visibility: hidden !important; }
     footer { display: none !important; }
     #MainMenu { display: none !important; }
     .stDeployButton { display: none !important; }
-    
+
+    /* --- NEW: SLEEK CUSTOM LOADER ANIMATION --- */
+    .loader-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        color: var(--primary);
+    }
+    .pulse-ring {
+        display: inline-block;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: var(--primary);
+        animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    .loader-text {
+        margin-top: 1rem;
+        font-weight: 600;
+        color: var(--primary-dark) !important;
+        letter-spacing: 0.05em;
+    }
+    @keyframes pulse-ring {
+        0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 25px rgba(59, 130, 246, 0); }
+        100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+
 </style>
 
 <meta name="apple-mobile-web-app-title" content="ClaimScribe">
-
 <link rel="apple-touch-icon" href="https://em-content.zobj.net/source/apple/354/shield_1f6e1-fe0f.png">
 <link rel="shortcut icon" href="https://em-content.zobj.net/source/apple/354/shield_1f6e1-fe0f.png">
-
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#2563eb"> 
 """, unsafe_allow_html=True)
 
-# Session State
-if "history" not in st.session_state: st.session_state.history = []
+# Session State Init
 if "generated_report" not in st.session_state: st.session_state.generated_report = None
 if "scope_items" not in st.session_state: st.session_state.scope_items = []
 if "renamed_zip" not in st.session_state: st.session_state.renamed_zip = None
-if "policy_text" not in st.session_state: st.session_state.policy_text = ""
-if "chat_history" not in st.session_state: st.session_state.chat_history = []
-if "scribe_audio_buffer" not in st.session_state: st.session_state.scribe_audio_buffer = []
 if "scribe_visual_buffer" not in st.session_state: st.session_state.scribe_visual_buffer = []
 if "contents_data" not in st.session_state: st.session_state.contents_data = []
 
 # ==========================================
 # 3. LOGIC (FUNCTIONS)
 # ==========================================
+
+# --- HELPER: CUSTOM LOADER HTML ---
+def get_custom_loader(text="Processing..."):
+    return f"""
+    <div class="loader-container">
+        <div class="pulse-ring"></div>
+        <div class="loader-text">{text.upper()}</div>
+    </div>
+    """
 
 def analyze_multimodal_batch(audio_list, visual_list, carrier, loss_type, guidelines):
     genai.configure(api_key=api_key)
@@ -326,7 +318,7 @@ def process_photos(uploaded_files, carrier):
 st.markdown("""
     <div class="custom-header">
         <h1>🛡️ ClaimScribe</h1>
-        <p>AI Field Assistant v7.15</p>
+        <p>AI Field Assistant v7.17</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -365,17 +357,25 @@ with tab_scribe:
     if has_audio or vis_count > 0:
         st.info(f"**Ready:** {'Audio Set' if has_audio else 'No Audio'} | {vis_count} Files")
         
+        # --- REPLACED SPINNER WITH CUSTOM LOADER ---
         if st.button("🚀 Generate Report", type="primary"):
-            with st.spinner("Synthesizing..."):
-                audio_list = [audio_scribe.getvalue()] if audio_scribe else []
-                raw = analyze_multimodal_batch(audio_list, st.session_state.scribe_visual_buffer, target_carrier, loss_type, custom_guidelines)
-                
-                if raw:
-                    narrative = raw.split("---NARRATIVE START---")[1].split("---NARRATIVE END---")[0].strip() if "---NARRATIVE START---" in raw else raw
-                    scope = extract_scope_items(raw)
-                    st.session_state.generated_report = narrative
-                    st.session_state.scope_items = scope
-                    st.rerun()
+            # 1. Create placeholder and show custom loader
+            loader_placeholder = st.empty()
+            loader_placeholder.markdown(get_custom_loader("Synthesizing Report..."), unsafe_allow_html=True)
+            
+            # 2. Run heavy process
+            audio_list = [audio_scribe.getvalue()] if audio_scribe else []
+            raw = analyze_multimodal_batch(audio_list, st.session_state.scribe_visual_buffer, target_carrier, loss_type, custom_guidelines)
+            
+            # 3. Clear loader
+            loader_placeholder.empty()
+
+            if raw:
+                narrative = raw.split("---NARRATIVE START---")[1].split("---NARRATIVE END---")[0].strip() if "---NARRATIVE START---" in raw else raw
+                scope = extract_scope_items(raw)
+                st.session_state.generated_report = narrative
+                st.session_state.scope_items = scope
+                st.rerun()
         
         if st.button("🗑️ Clear All", type="secondary"):
             st.session_state.scribe_visual_buffer = []
@@ -397,7 +397,8 @@ with tab_scribe:
         c1, c2 = st.columns(2)
         with c1:
             if st.button("🔍 Audit"):
-                res = audit_scope(final_scope, loss_type)
+                with st.spinner("Auditing..."): # Simple spinner for quick audit is fine
+                    res = audit_scope(final_scope, loss_type)
                 st.info(res)
         with c2:
             pdf = generate_pdf(edited_narrative, final_scope, target_carrier, datetime.datetime.now().strftime('%Y-%m-%d'))
@@ -409,9 +410,21 @@ with tab_contents:
     st.markdown('<p class="tool-desc">Upload room photos to list property items.</p>', unsafe_allow_html=True)
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
     img = st.file_uploader("Room Photos", accept_multiple_files=True, key="content_up")
+    
+    # --- ADDED CUSTOM LOADER ---
+    contents_loader_placeholder = st.empty()
+
     if img and st.button("List Items"):
+        # 1. Show custom loader
+        contents_loader_placeholder.markdown(get_custom_loader("Analyzing Inventory..."), unsafe_allow_html=True)
+        
+        # 2. Run heavy process
         res = generate_inventory(img)
         st.session_state.contents_data = [{"Item": l.split('|')[0], "Qty": l.split('|')[1]} for l in res.split('\n') if '|' in l]
+        
+        # 3. Clear loader
+        contents_loader_placeholder.empty()
+
     if st.session_state.contents_data:
         st.data_editor(st.session_state.contents_data)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -422,7 +435,8 @@ with tab_statement:
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
     stmt_audio = st.audio_input("Record Interview", key="stmt_rec")
     if stmt_audio and st.button("Analyze Statement"):
-        st.write(analyze_statement_batch([stmt_audio.getvalue()]))
+        with st.spinner("Analyzing..."):
+            st.write(analyze_statement_batch([stmt_audio.getvalue()]))
     st.markdown('</div>', unsafe_allow_html=True)
 
 # --- TAB 4: PHOTOS ---
@@ -431,7 +445,8 @@ with tab_photos:
     st.markdown('<div class="input-card">', unsafe_allow_html=True)
     p = st.file_uploader("Photos to Rename", accept_multiple_files=True, key="photo_up")
     if p and st.button("Rename Batch"):
-        st.session_state.renamed_zip = process_photos(p, target_carrier)
+        with st.spinner("Processing..."):
+            st.session_state.renamed_zip = process_photos(p, target_carrier)
         st.success("Done!")
     if st.session_state.renamed_zip:
         st.download_button("Download ZIP", st.session_state.renamed_zip, "photos.zip")
