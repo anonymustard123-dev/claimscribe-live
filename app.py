@@ -33,7 +33,7 @@ if not api_key:
         st.stop()
 
 # ==========================================
-# 2. "MODERN APP" STYLING (V7.14)
+# 2. MODERN APP & PWA STYLING (V7.15 - PWA FIX)
 # ==========================================
 st.markdown("""
 <style>
@@ -164,8 +164,13 @@ st.markdown("""
     
 </style>
 
+<meta name="apple-mobile-web-app-title" content="ClaimScribe">
+
+<link rel="apple-touch-icon" href="https://em-content.zobj.net/source/apple/354/shield_1f6e1-fe0f.png">
+<link rel="shortcut icon" href="https://em-content.zobj.net/source/apple/354/shield_1f6e1-fe0f.png">
+
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#2563eb"> 
 """, unsafe_allow_html=True)
 
@@ -321,7 +326,7 @@ def process_photos(uploaded_files, carrier):
 st.markdown("""
     <div class="custom-header">
         <h1>🛡️ ClaimScribe</h1>
-        <p>AI Field Assistant v7.14</p>
+        <p>AI Field Assistant v7.15</p>
     </div>
 """, unsafe_allow_html=True)
 
