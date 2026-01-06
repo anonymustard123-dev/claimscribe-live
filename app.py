@@ -20,7 +20,7 @@ st.set_page_config(
     page_title="ClaimScribe", 
     page_icon="🛡️", 
     layout="wide",
-    initial_sidebar_state="collapsed" # Starts closed to keep it clean
+    initial_sidebar_state="collapsed"
 )
 
 # 🔑 API KEY
@@ -33,7 +33,7 @@ if not api_key:
         st.stop()
 
 # ==========================================
-# 2. MODERN UI & CSS (V7.18 - "SAAS LOOK")
+# 2. MODERN UI & DARK MODE FIX (V7.19)
 # ==========================================
 st.markdown("""
 <style>
@@ -42,17 +42,24 @@ st.markdown("""
 
     /* --- ROOT VARIABLES --- */
     :root {
-        --primary: #2563eb; /* Stronger Blue */
-        --bg-color: #f8fafc; /* Very light cool grey */
+        --primary: #2563eb; 
+        --bg-color: #f8fafc;
         --card-bg: #ffffff;
-        --text-dark: #0f172a;
-        --text-grey: #64748b;
-        --input-bg: #f1f5f9; /* "Filled" input style */
+        --text-dark: #0f172a; /* Dark Navy */
+        --text-grey: #475569; /* Slate 600 - Readable Grey */
+        --input-bg: #f1f5f9;
     }
 
+    /* --- FORCE LIGHT MODE TEXT --- */
+    /* This fixes the "Invisible Text" issue on Dark Mode phones */
+    .stApp, p, h1, h2, h3, h4, h5, h6, span, div, label, li {
+        color: var(--text-dark) !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+    
+    /* Force Background to be Light */
     .stApp {
         background-color: var(--bg-color) !important;
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
     /* --- CLEAN HEADER --- */
@@ -60,14 +67,14 @@ st.markdown("""
     
     .custom-header {
         text-align: center;
-        padding: 2rem 1rem 1rem 1rem;
-        margin-bottom: 1rem;
+        padding: 1.5rem 1rem 0.5rem 1rem;
+        margin-bottom: 0.5rem;
     }
     .custom-header h1 {
         color: var(--text-dark) !important;
         margin: 0;
         font-size: 1.8rem;
-        font-weight: 800; /* Extra Bold */
+        font-weight: 800; 
         letter-spacing: -0.03em;
     }
     .custom-header p {
@@ -77,69 +84,74 @@ st.markdown("""
         margin-top: 0.2rem;
     }
 
-    /* --- CARDS (Softer & Cleaner) --- */
+    /* --- CARDS --- */
     .input-card { 
         background-color: var(--card-bg);
         padding: 1.5rem; 
-        border-radius: 20px; /* More rounded */
-        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05); /* Soft, spread out shadow */
-        border: 1px solid rgba(255,255,255,0.5);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(226, 232, 240, 0.8);
         margin-bottom: 24px;
     }
 
-    /* --- MODERN INPUTS ("Filled" Style) --- */
-    /* Removes borders, adds light grey background */
+    /* --- EXPANDER (JOB CONFIG) --- */
+    .streamlit-expanderHeader {
+        background-color: white !important;
+        border-radius: 12px !important;
+        border: 1px solid #e2e8f0 !important;
+        color: var(--text-dark) !important;
+        font-weight: 600 !important;
+    }
+    .streamlit-expanderContent {
+        background-color: white !important;
+        border: 1px solid #e2e8f0;
+        border-top: none;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+        color: var(--text-dark) !important;
+    }
+    /* Fix text inside the expander specifically */
+    .streamlit-expanderContent p, .streamlit-expanderContent label {
+        color: var(--text-dark) !important;
+    }
+
+    /* --- INPUTS --- */
     div[data-baseweb="select"] > div, 
     input[type="text"], 
     textarea {
         background-color: var(--input-bg) !important;
         border: 1px solid transparent !important;
-        color: var(--text-dark) !important;
+        color: var(--text-dark) !important; /* Force text black inside inputs */
         border-radius: 12px !important;
-        padding: 10px 12px !important;
-        transition: all 0.2s ease;
     }
-    /* Focus: White bg + Blue Border + Shadow */
-    div[data-baseweb="select"] > div:focus-within,
-    input:focus, textarea:focus {
-        background-color: #ffffff !important;
-        border: 1px solid var(--primary) !important;
-        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1) !important;
+    /* Fix Dropdown Text specifically */
+    div[data-baseweb="select"] span {
+        color: var(--text-dark) !important;
     }
 
-    /* --- BUTTONS (Flat & Punchy) --- */
+    /* --- BUTTONS --- */
     div.stButton > button {
         background-color: var(--primary) !important;
-        color: white !important;
+        color: white !important; /* Keep button text white */
         border: none !important;
         border-radius: 12px !important;
         font-weight: 600 !important;
         height: 3.5rem !important;
-        transition: all 0.2s;
-        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); /* Blue shadow */
+        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
     }
-    div.stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4);
-    }
-    div.stButton > button:active {
-        transform: scale(0.97);
+    /* Explicitly target button text to ensure it stays white */
+    div.stButton > button p {
+        color: white !important;
     }
     
-    /* Secondary Button (Clear All) */
     div.stButton > button[kind="secondary"] {
         background-color: white !important;
         color: var(--text-grey) !important;
         border: 2px solid #e2e8f0 !important;
         box-shadow: none !important;
     }
-
-    /* --- AUDIO RECORDER (Sleek) --- */
-    [data-testid="stAudioInput"] {
-        background-color: var(--input-bg) !important;
-        border: none !important;
-        padding: 16px;
-        border-radius: 16px;
+    div.stButton > button[kind="secondary"] p {
+        color: var(--text-grey) !important;
     }
 
     /* --- HIDE JANK --- */
@@ -148,14 +160,13 @@ st.markdown("""
     #MainMenu { display: none !important; }
     .stDeployButton { display: none !important; }
 
-    /* --- CUSTOM LOADER --- */
+    /* --- LOADER --- */
     .loader-container {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         padding: 2rem;
-        color: var(--primary);
     }
     .pulse-ring {
         display: inline-block;
@@ -325,17 +336,6 @@ def process_photos(uploaded_files, carrier):
 # 4. MAIN LAYOUT
 # ==========================================
 
-# --- SIDEBAR (Settings Moved Here) ---
-with st.sidebar:
-    st.header("⚙️ Job Settings")
-    carrier_options = ["State Farm", "Allstate", "Liberty Mutual", "Chubb", "USAA", "Other"]
-    selected_carrier = st.selectbox("Carrier", carrier_options)
-    target_carrier = st.text_input("Name") if selected_carrier == "Other" else selected_carrier
-    loss_type = st.selectbox("Loss Type", ["Water (Pipe Burst)", "Water (Flood)", "Fire/Smoke", "Wind/Hail", "Theft/Vandalism"])
-    custom_guidelines = st.text_area("Guideline Overrides", placeholder="e.g. Strict passive voice...", height=100)
-    st.markdown("---")
-    st.caption(f"App v7.18 | {target_carrier}")
-
 # --- MAIN CONTENT ---
 st.markdown("""
     <div class="custom-header">
@@ -343,6 +343,18 @@ st.markdown("""
         <p>AI Field Assistant</p>
     </div>
 """, unsafe_allow_html=True)
+
+# --- JOB SETUP (Top of Page) ---
+with st.expander("⚙️ **Job Configuration**", expanded=True):
+    col_a, col_b = st.columns(2)
+    with col_a:
+        carrier_options = ["State Farm", "Allstate", "Liberty Mutual", "Chubb", "USAA", "Other"]
+        selected_carrier = st.selectbox("Carrier", carrier_options)
+        target_carrier = st.text_input("Name") if selected_carrier == "Other" else selected_carrier
+    with col_b:
+        loss_type = st.selectbox("Loss Type", ["Water (Pipe Burst)", "Water (Flood)", "Fire/Smoke", "Wind/Hail", "Theft/Vandalism"])
+    
+    custom_guidelines = st.text_area("Guideline Overrides", placeholder="e.g. Strict passive voice...", height=100)
 
 # --- TABS ---
 tab_scribe, tab_contents, tab_statement, tab_photos, tab_policy = st.tabs([
