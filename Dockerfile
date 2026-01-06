@@ -1,31 +1,19 @@
-# Use the official lightweight Python image.
-# https://hub.docker.com/_/python
-FROM python:3.9-slim
+# We use 'bullseye' because it is the stable, rock-solid version of Linux
+FROM python:3.9-slim-bullseye
 
-# Install system dependencies (FFmpeg is great for audio handling later)
-RUN apt-get update && apt-get install -y \
+# Install system dependencies
+# We added 'fix-missing' to prevent network errors during download
+RUN apt-get update --fix-missing && apt-get install -y \
     build-essential \
-    curl \
-    software-properties-common \
-    git \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the requirements file into the container
-COPY requirements.txt .
-
-# Install the dependencies
-RUN pip3 install -r requirements.txt
-
-# Copy the rest of the application code
 COPY . .
 
-# Expose the port Streamlit runs on
-EXPOSE 8501
+# Install python dependencies
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Run the application
-# We use --server.address=0.0.0.0 so external users can reach it
-ENTRYPOINT ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+# Run the app
+CMD streamlit run app.py --server.port $PORT --server.address 0.0.0.0
