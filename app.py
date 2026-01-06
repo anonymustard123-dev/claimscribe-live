@@ -11,6 +11,7 @@ import zipfile
 import re
 from PIL import Image
 from pypdf import PdfReader
+import os  # <--- CRITICAL FOR RAILWAY
 
 # ==========================================
 # 1. SETUP & CONFIG
@@ -22,12 +23,14 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 🔑 API KEY
-try:
-    api_key = st.secrets["GOOGLE_API_KEY"]
-except FileNotFoundError:
-    st.error("⚠️ API Key not found.")
-    st.stop()
+# 🔑 API KEY (Robust Retrieval for Railway & Local)
+api_key = os.getenv("GOOGLE_API_KEY")
+if not api_key:
+    try:
+        api_key = st.secrets["GOOGLE_API_KEY"]
+    except (FileNotFoundError, KeyError):
+        st.error("⚠️ API Key not found. Please set GOOGLE_API_KEY in Railway Variables.")
+        st.stop()
 
 # ==========================================
 # 2. "MODERN APP" STYLING (V7.14)
@@ -165,17 +168,6 @@ st.markdown("""
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#2563eb"> 
 """, unsafe_allow_html=True)
-
-# Load Truth Data
-@st.cache_data
-def load_truth_data():
-    try:
-        df = pd.read_csv("codes.csv")
-        return df.to_string(index=False), True
-    except FileNotFoundError:
-        return "", False
-
-xactimate_database, database_loaded = load_truth_data()
 
 # Session State
 if "history" not in st.session_state: st.session_state.history = []
