@@ -1,8 +1,7 @@
-# We use 'bullseye' because it is the stable, rock-solid version of Linux
+# Use the stable version of Linux
 FROM python:3.9-slim-bullseye
 
 # Install system dependencies
-# We added 'fix-missing' to prevent network errors during download
 RUN apt-get update --fix-missing && apt-get install -y \
     build-essential \
     ffmpeg \
@@ -15,5 +14,6 @@ COPY . .
 # Install python dependencies
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Run the app
-CMD streamlit run app.py --server.port $PORT --server.address 0.0.0.0
+# --- THE FIX: FORCE PORT 8080 ---
+EXPOSE 8080
+CMD streamlit run app.py --server.port 8080 --server.address 0.0.0.0
